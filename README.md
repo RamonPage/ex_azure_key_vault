@@ -18,6 +18,8 @@ def deps do
 end
 ```
 
+[Documentation is available on hexdocs.pm](https://hexdocs.pm/ex_azure_key_vault/).
+
 ## Basic usage
 
 When defining environment variables and/or adding to configuration.
