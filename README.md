@@ -1,5 +1,8 @@
 # Elixir Azure Key Vault
 
+[![Hex.pm Version](https://img.shields.io/hexpm/v/ex_azure_key_vault.svg?style=flat-square)](https://hex.pm/packages/ex_azure_key_vault)
+[![Hex.pm Download Total](https://img.shields.io/hexpm/dt/ex_azure_key_vault.svg?style=flat-square)](https://hex.pm/packages/ex_azure_key_vault)
+
 Elixir wrapper for Azure Key Vault REST API.
 
 ## Installation
