@@ -29,7 +29,7 @@ defmodule ExAzureKeyVault.Url do
   end
 
   @doc """
-  Returns Azure Key Vault URL.
+  Returns Azure Key Vault URL for secret management.
 
   ## Examples
 
@@ -56,7 +56,7 @@ defmodule ExAzureKeyVault.Url do
   end
 
   @doc """
-  Returns body for Azure authentication.
+  Returns body for secret creation.
 
   ## Examples
 
