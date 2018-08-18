@@ -44,9 +44,9 @@ defmodule ExAzureKeyVault.MixProject do
 
   defp docs do
     [
-      main: "readme",
+      main: "docs",
       source_ref: "v#{@version}",
-      extras: ["README.md"]
+      extras: ["DOCS.md"]
     ]
   end
 
