@@ -169,6 +169,37 @@ defmodule ExAzureKeyVault.Client do
     end
   end
 
+  @spec get_secrets(Client.t, integer | nil) :: {:ok, String.t} | {:error, any}
+  def get_secrets(%Client{} = params, max_results \\ nil) do
+    url = Url.new(nil, params.vault_name) |> Url.get_secrets_url(max_results, params.api_version)
+    headers = ["Authorization": params.bearer_token, "Content-Type": "application/json; charset=utf-8"]
+    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    case HTTPoison.get(url, headers, options) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        response = Poison.decode!(body)
+        {:ok, response}
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+        if status
+          |> Integer.to_string()
+          |> String.starts_with?("4") do
+          if body != "" do
+            response = Poison.decode!(body)
+            {:error, response}
+          else
+            {:error, "Error: #{status}: #{url}"}
+          end
+        end
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        if reason == :nxdomain do
+          {:error, "Error: Couldn't resolve host name #{url}"}
+        else
+          {:error, reason}
+        end
+      _ ->
+        {:error, "Something went wrong"}
+    end
+  end
+
   @doc """
   Creates a new secret.
 

@@ -55,6 +55,17 @@ defmodule ExAzureKeyVault.Url do
     end
   end
 
+  @spec get_secrets_url(Url.t, integer | nil, String.t) :: String.t
+  def get_secrets_url(%Url{} = params, max_results \\ nil, api_version) do
+    base_url = base_secrets_url(params.vault_name)
+    api_version_string = get_api_version_string(api_version)
+    if !is_nil(max_results) && max_results != "" do
+      base_url <> api_version_string <> "&maxresults=#{max_results}"
+    else
+      base_url <> api_version_string
+    end
+  end
+
   @doc """
   Returns body for secret creation.
 
@@ -72,6 +83,11 @@ defmodule ExAzureKeyVault.Url do
   @spec base_secret_url(String.t, String.t) :: String.t
   defp base_secret_url(vault_name, secret_name) do
     "https://#{vault_name}.vault.azure.net/secrets/#{secret_name}"
+  end
+
+  @spec base_secrets_url(String.t) :: String.t
+  defp base_secrets_url(vault_name) do
+    "https://#{vault_name}.vault.azure.net/secrets"
   end
 
   @spec get_api_version_string(String.t) :: String.t
