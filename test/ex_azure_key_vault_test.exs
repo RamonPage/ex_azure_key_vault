@@ -76,6 +76,30 @@ defmodule ExAzureKeyVault.ClientTest do
         assert result == context[:client]
       end
     end
+
+    test "raises ArgumentError when vault name is not present" do
+      assert_raise ArgumentError, "Vault name is not present", fn ->
+        ExAzureKeyVault.Client.connect(nil, @tenant_id, @client_id, @client_secret)
+      end
+    end
+
+    test "raises ArgumentError when tenant id is not present" do
+      assert_raise ArgumentError, "Tenant ID is not present", fn ->
+        ExAzureKeyVault.Client.connect(@vault_name, nil, @client_id, @client_secret)
+      end
+    end
+
+    test "raises ArgumentError when client id is not present" do
+      assert_raise ArgumentError, "Client ID is not present", fn ->
+        ExAzureKeyVault.Client.connect(@vault_name, @tenant_id, nil, @client_secret)
+      end
+    end
+
+    test "raises ArgumentError when client secret is not present" do
+      assert_raise ArgumentError, "Client secret is not present", fn ->
+        ExAzureKeyVault.Client.connect(@vault_name, @tenant_id, @client_id, nil)
+      end
+    end
   end
 
   describe "when environment variables are defined" do
