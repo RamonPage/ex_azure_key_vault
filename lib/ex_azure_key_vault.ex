@@ -216,7 +216,7 @@ defmodule ExAzureKeyVault.Client do
 
   @spec get_env(atom, String.t) :: String.t
   defp get_env(key, default) do
-    Application.get_env(:ex_azure_key_vault, key) |> return_value() || default
+    default || Application.get_env(:ex_azure_key_vault, key) |> return_value()
   end
 
   @spec return_value(tuple) :: String.t

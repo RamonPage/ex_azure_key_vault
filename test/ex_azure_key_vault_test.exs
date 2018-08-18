@@ -20,6 +20,11 @@ defmodule ExAzureKeyVault.ClientTest do
         @vault_name,
         "2016-10-01"
       ),
+      client_with_custom_params: ExAzureKeyVault.Client.new(
+        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "another-vault",
+        "2016-10-01"
+      ),
       url: "https://login.windows.net/#{@tenant_id}/oauth2/token",
       body: {:form,
         [
@@ -51,6 +56,14 @@ defmodule ExAzureKeyVault.ClientTest do
         assert result == context[:client]
       end
     end
+
+    test "connects to key vault with custom params", context do
+      with_mock HTTPoison, [post: fn(_url, _body, _header, _options) -> response_200_token(context) end] do
+        result = ExAzureKeyVault.Client.connect("another-vault")
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == context[:client_with_custom_params]
+      end
+    end
   end
 
   describe "when application config is not defined" do
@@ -68,7 +81,7 @@ defmodule ExAzureKeyVault.ClientTest do
   describe "when environment variables are defined" do
     setup [:setup_environment_variables]
 
-    test "connects to key vault with params", context do
+    test "connects to key vault without params", context do
       with_mock HTTPoison, [post: fn(_url, _body, _header, _options) -> response_200_token(context) end] do
         result = ExAzureKeyVault.Client.connect()
         assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
