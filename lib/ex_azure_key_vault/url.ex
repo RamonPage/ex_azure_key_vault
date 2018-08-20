@@ -82,12 +82,17 @@ defmodule ExAzureKeyVault.Url do
 
   @spec base_secret_url(String.t, String.t) :: String.t
   defp base_secret_url(vault_name, secret_name) do
-    "https://#{vault_name}.vault.azure.net/secrets/#{secret_name}"
+    base_url(vault_name) <> "/secrets/#{secret_name}"
   end
 
   @spec base_secrets_url(String.t) :: String.t
   defp base_secrets_url(vault_name) do
-    "https://#{vault_name}.vault.azure.net/secrets"
+    base_url(vault_name) <> "/secrets"
+  end
+
+  @spec base_url(String.t) :: String.t
+  defp base_url(vault_name) do
+    "https://#{vault_name}.vault.azure.net"
   end
 
   @spec get_api_version_string(String.t) :: String.t
