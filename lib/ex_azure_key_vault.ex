@@ -200,6 +200,41 @@ defmodule ExAzureKeyVault.Client do
     end
   end
 
+  @spec get_next_secrets(Client.t, String.t) :: {:ok, String.t} | {:error, any}
+  def get_next_secrets(%Client{} = params, next_link) do
+    if is_empty(next_link), do: raise ArgumentError, message: "Next link is not present"
+    unless next_link
+      |> String.starts_with?("https://#{params.vault_name}.vault.azure.net") do
+      raise ArgumentError, message: "Next link #{next_link} is not valid"
+    end
+    headers = ["Authorization": params.bearer_token, "Content-Type": "application/json; charset=utf-8"]
+    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    case HTTPoison.get(next_link, headers, options) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        response = Poison.decode!(body)
+        {:ok, response}
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+        if status
+          |> Integer.to_string()
+          |> String.starts_with?("4") do
+          if body != "" do
+            response = Poison.decode!(body)
+            {:error, response}
+          else
+            {:error, "Error: #{status}: #{next_link}"}
+          end
+        end
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        if reason == :nxdomain do
+          {:error, "Error: Couldn't resolve host name #{next_link}"}
+        else
+          {:error, reason}
+        end
+      _ ->
+        {:error, "Something went wrong"}
+    end
+  end
+
   @doc """
   Creates a new secret.
 
