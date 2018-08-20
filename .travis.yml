@@ -1,7 +1,6 @@
 language: elixir
 sudo: false
 elixir: '1.7.2'
-before_script:
-  - mix deps.get
+otp_release: '20.3'
 script:
   - mix test
