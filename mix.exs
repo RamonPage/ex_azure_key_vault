@@ -17,7 +17,9 @@ defmodule ExAzureKeyVault.MixProject do
       package: package(),
       docs: docs(),
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]
     ]
   end
 
@@ -55,7 +57,8 @@ defmodule ExAzureKeyVault.MixProject do
       {:httpoison, "~> 1.2.0"},
       {:poison, "~> 4.0.0"},
       {:ex_doc, "~> 0.19.0", only: :dev, runtime: false},
-      {:mock, "~> 0.3.2", only: :test}
+      {:mock, "~> 0.3.2", only: :test},
+      {:excoveralls, "~> 0.9.2", only: :test}
     ]
   end
 
