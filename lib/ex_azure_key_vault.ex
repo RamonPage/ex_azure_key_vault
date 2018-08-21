@@ -5,6 +5,7 @@ defmodule ExAzureKeyVault.Client do
   alias __MODULE__
   alias ExAzureKeyVault.APIVersion
   alias ExAzureKeyVault.Auth
+  alias ExAzureKeyVault.HTTPUtils
   alias ExAzureKeyVault.Url
 
   @enforce_keys [:api_version, :bearer_token, :vault_name]
@@ -128,8 +129,8 @@ defmodule ExAzureKeyVault.Client do
   @spec get_secret(Client.t, String.t, String.t | nil) :: {:ok, String.t} | {:error, any}
   def get_secret(%Client{} = params, secret_name, secret_version \\ nil) do
     url = Url.new(secret_name, params.vault_name) |> Url.get_url(secret_version, params.api_version)
-    headers = ["Authorization": params.bearer_token, "Content-Type": "application/json; charset=utf-8"]
-    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    headers = HTTPUtils.headers_authorization(params.bearer_token)
+    options = HTTPUtils.options_ssl
     case HTTPoison.get(url, headers, options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
@@ -232,8 +233,8 @@ defmodule ExAzureKeyVault.Client do
   @spec get_secrets(Client.t, integer | nil) :: {:ok, String.t} | {:error, any}
   def get_secrets(%Client{} = params, max_results \\ nil) do
     url = Url.new(nil, params.vault_name) |> Url.get_secrets_url(max_results, params.api_version)
-    headers = ["Authorization": params.bearer_token, "Content-Type": "application/json; charset=utf-8"]
-    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    headers = HTTPUtils.headers_authorization(params.bearer_token)
+    options = HTTPUtils.options_ssl
     case HTTPoison.get(url, headers, options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
@@ -293,8 +294,8 @@ defmodule ExAzureKeyVault.Client do
       |> String.starts_with?("https://#{params.vault_name}.vault.azure.net") do
       raise ArgumentError, message: "Next link #{next_link} is not valid"
     end
-    headers = ["Authorization": params.bearer_token, "Content-Type": "application/json; charset=utf-8"]
-    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    headers = HTTPUtils.headers_authorization(params.bearer_token)
+    options = HTTPUtils.options_ssl
     case HTTPoison.get(next_link, headers, options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
@@ -334,8 +335,8 @@ defmodule ExAzureKeyVault.Client do
   def create_secret(%Client{} = params, secret_name, secret_value) do
     url = Url.new(secret_name, params.vault_name) |> Url.get_url(params.api_version)
     body = Url.get_body(secret_value)
-    headers = ["Authorization": params.bearer_token, "Content-Type": "application/json; charset=utf-8"]
-    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    headers = HTTPUtils.headers_authorization(params.bearer_token)
+    options = HTTPUtils.options_ssl
     case HTTPoison.put(url, body, headers, options) do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         :ok

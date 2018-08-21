@@ -3,6 +3,7 @@ defmodule ExAzureKeyVault.Auth do
   Internal module for getting authentication token for Azure connection.
   """
   alias __MODULE__
+  alias ExAzureKeyVault.HTTPUtils
 
   @enforce_keys [:client_id, :client_secret, :tenant_id]
   defstruct(
@@ -49,8 +50,8 @@ defmodule ExAzureKeyVault.Auth do
   def get_bearer_token(%Auth{} = params) do
     url = auth_url(params.tenant_id)
     body = auth_body(params.client_id, params.client_secret)
-    headers = ["Content-Type": "application/x-www-form-urlencoded"]
-    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    headers = HTTPUtils.headers_form_urlencoded
+    options = HTTPUtils.options_ssl
     case HTTPoison.post(url, body, headers, options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
