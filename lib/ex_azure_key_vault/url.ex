@@ -55,6 +55,22 @@ defmodule ExAzureKeyVault.Url do
     end
   end
 
+  @doc """
+  Returns Azure Key Vault URL for get secrets.
+
+  ## Examples
+
+  Passing a maximum number of 10 results in a page. If not specified, the service will return up to 25 results.
+
+      iex> ExAzureKeyVault.Url.get_secrets_url(%ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}, 10, "2016-10-01")
+      "https://my-vault.vault.azure.net/secrets?api-version=2016-10-01&maxresults=10"
+
+  Ignoring maximum number of results.
+
+      iex> ExAzureKeyVault.Url.get_secrets_url(%ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}, nil, "2016-10-01")
+      "https://my-vault.vault.azure.net/secrets?api-version=2016-10-01"
+
+  """
   @spec get_secrets_url(Url.t, integer | nil, String.t) :: String.t
   def get_secrets_url(%Url{} = params, max_results \\ nil, api_version) do
     base_url = base_secrets_url(params.vault_name)
