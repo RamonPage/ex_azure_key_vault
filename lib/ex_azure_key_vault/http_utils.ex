@@ -4,7 +4,7 @@ defmodule ExAzureKeyVault.HTTPUtils do
   """
 
   @doc """
-  Returns the "application/x-www-form-urlencoded" header.
+  Returns "application/x-www-form-urlencoded" header.
 
   ## Examples
 
