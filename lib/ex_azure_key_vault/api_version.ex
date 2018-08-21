@@ -8,7 +8,7 @@ defmodule ExAzureKeyVault.APIVersion do
 
   ## Examples
 
-      iex> ExAzureKeyVault.APIVersion.version()
+      iex(1)> ExAzureKeyVault.APIVersion.version()
       "2016-10-01"
 
   """

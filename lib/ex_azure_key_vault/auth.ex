@@ -22,7 +22,7 @@ defmodule ExAzureKeyVault.Auth do
 
   ## Examples
 
-      iex> ExAzureKeyVault.Auth.new("6f185f82-9909...", "6f1861e4-9909...", "6f185bb8-9909...")
+      iex(1)> ExAzureKeyVault.Auth.new("6f185f82-9909...", "6f1861e4-9909...", "6f185bb8-9909...")
       %ExAzureKeyVault.Auth{
         client_id: "6f185f82-9909...",
         client_secret: "6f1861e4-9909...",
@@ -40,12 +40,8 @@ defmodule ExAzureKeyVault.Auth do
 
   ## Examples
 
-      iex> ExAzureKeyVault.Auth.get_bearer_token(
-      %ExAzureKeyVault.Auth{
-        client_id: "f7ad46c2-9987...",
-        client_secret: "f7ad4924-9987...",
-        tenant_id: "f7ad4302-9987..."
-      })
+      iex(1)> ExAzureKeyVault.Auth.new("6f185f82-9909...", "6f1861e4-9909...", "6f185bb8-9909...")
+      ...(1)> |> ExAzureKeyVault.Auth.get_bearer_token()
       {:ok, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
 
   """

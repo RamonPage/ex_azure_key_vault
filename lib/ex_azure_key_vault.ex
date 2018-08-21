@@ -27,7 +27,7 @@ defmodule ExAzureKeyVault.Client do
 
   Using default API version.
 
-      iex> ExAzureKeyVault.Client.new("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "my-vault")
+      iex(1)> ExAzureKeyVault.Client.new("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "my-vault")
       %ExAzureKeyVault.Client{
         api_version: "2016-10-01",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -36,7 +36,7 @@ defmodule ExAzureKeyVault.Client do
 
   Passing custom API version.
 
-      iex> ExAzureKeyVault.Client.new("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "my-vault", "2015-06-01")
+      iex(1)> ExAzureKeyVault.Client.new("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "my-vault", "2015-06-01")
       %ExAzureKeyVault.Client{
         api_version: "2015-06-01",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -72,7 +72,7 @@ defmodule ExAzureKeyVault.Client do
         azure_tenant_id: {:system, "AZURE_TENANT_ID"},
         azure_vault_name: {:system, "AZURE_VAULT_NAME"}
 
-      iex> ExAzureKeyVault.Client.connect()
+      iex(1)> ExAzureKeyVault.Client.connect()
       %ExAzureKeyVault.Client{
         api_version: "2016-10-01",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -81,7 +81,7 @@ defmodule ExAzureKeyVault.Client do
 
   Passing custom parameters.
 
-      iex> ExAzureKeyVault.Client.connect("custom-vault", "14e7a376-9abf...", "14e79d90-9abf...", "14e7a11e-9abf...")
+      iex(1)> ExAzureKeyVault.Client.connect("custom-vault", "14e7a376-9abf...", "14e79d90-9abf...", "14e7a11e-9abf...")
       %ExAzureKeyVault.Client{
         api_version: "2016-10-01",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -116,22 +116,12 @@ defmodule ExAzureKeyVault.Client do
 
   Ignoring secret version.
 
-      iex> ExAzureKeyVault.Client.get_secret(
-      %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
-        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        vault_name: "my-vault"
-      }, "my-secret")
+      iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secret("my-secret")
       {:ok, "my-value"}
 
   Passing secret version.
 
-      iex> ExAzureKeyVault.Client.get_secret(
-      %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
-        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        vault_name: "my-vault"
-      }, "my-secret", "03b424a49ac3...")
+      iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secret("my-secret", "03b424a49ac3...")
       {:ok, "my-other-value"}
 
   """
@@ -176,12 +166,7 @@ defmodule ExAzureKeyVault.Client do
 
   Passing a maximum number of 2 results in a page.
 
-      iex> ExAzureKeyVault.Client.get_secrets(
-      %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
-        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        vault_name: "my-vault"
-      }, 2)
+      iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets(2)
       {:ok,
         %{
           "nextLink" => "https://my-vault.vault.azure.net:443/secrets?api-version=2016-10-01&$skiptoken=eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6...&maxresults=2",
@@ -209,12 +194,7 @@ defmodule ExAzureKeyVault.Client do
 
   Ignoring maximum number of results.
 
-      iex> ExAzureKeyVault.Client.get_secrets(
-      %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
-        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        vault_name: "my-vault"
-      })
+      iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets()
       {:ok,
         %{
           "nextLink" => nil,
@@ -285,11 +265,11 @@ defmodule ExAzureKeyVault.Client do
 
   ## Examples
 
-      iex> client = ExAzureKeyVault.Client.connect()
+      iex(1)> client = ExAzureKeyVault.Client.connect()
       ...
-      iex> {_, secrets} = client |> ExAzureKeyVault.Client.get_secrets(2)
+      iex(1)> {_, secrets} = client |> ExAzureKeyVault.Client.get_secrets(2)
       ...
-      iex> {_, next_secrets} = client |> ExAzureKeyVault.Client.get_secrets_next(secrets["nextLink"])
+      iex(1)> {_, next_secrets} = client |> ExAzureKeyVault.Client.get_secrets_next(secrets["nextLink"])
       {:ok,
         %{
           "nextLink" => nil,
@@ -346,12 +326,7 @@ defmodule ExAzureKeyVault.Client do
 
   ## Examples
 
-      iex> ExAzureKeyVault.Client.create_secret(
-      %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
-        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        vault_name: "my-vault"
-      }, "my-new-secret", "my-new-value")
+      iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.create_secret("my-new-secret", "my-new-value")
       :ok
 
   """

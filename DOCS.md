@@ -37,12 +37,12 @@ config :ex_azure_key_vault,
 
 ### Getting a secret
 ```elixir
-iex> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secret("my-secret")
+iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secret("my-secret")
 {:ok, "my-value"}
 ```
 
 ### Creating a secret
 ```elixir
-iex> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.create_secret("my-new-secret", "my-new-value")
+iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.create_secret("my-new-secret", "my-new-value")
 :ok
 ```

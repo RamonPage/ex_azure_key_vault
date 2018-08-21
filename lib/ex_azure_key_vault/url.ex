@@ -19,7 +19,7 @@ defmodule ExAzureKeyVault.Url do
 
   ## Examples
 
-      iex> ExAzureKeyVault.Url.new("my-secret", "my-vault")
+      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault")
       %ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}
 
   """
@@ -35,12 +35,12 @@ defmodule ExAzureKeyVault.Url do
 
   Passing secret version.
 
-      iex> ExAzureKeyVault.Url.get_url(%ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}, "7ea98ee699b1...", "2016-10-01")
+      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_url("7ea98ee699b1...", "2016-10-01")
       "https://my-vault.vault.azure.net/secrets/my-secret/7ea98ee699b1...?api-version=2016-10-01"
 
   Ignoring secret version.
 
-      iex> ExAzureKeyVault.Url.get_url(%ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}, nil, "2016-10-01")
+      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_url(nil, "2016-10-01")
       "https://my-vault.vault.azure.net/secrets/my-secret?api-version=2016-10-01"
 
   """
@@ -62,12 +62,12 @@ defmodule ExAzureKeyVault.Url do
 
   Passing a maximum number of 10 results in a page.
 
-      iex> ExAzureKeyVault.Url.get_secrets_url(%ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}, 10, "2016-10-01")
+      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_secrets_url(10, "2016-10-01")
       "https://my-vault.vault.azure.net/secrets?api-version=2016-10-01&maxresults=10"
 
   Ignoring maximum number of results.
 
-      iex> ExAzureKeyVault.Url.get_secrets_url(%ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}, nil, "2016-10-01")
+      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_secrets_url(nil, "2016-10-01")
       "https://my-vault.vault.azure.net/secrets?api-version=2016-10-01"
 
   """
@@ -87,7 +87,7 @@ defmodule ExAzureKeyVault.Url do
 
   ## Examples
 
-      iex> ExAzureKeyVault.Url.get_body("my-secret")
+      iex(1)> ExAzureKeyVault.Url.get_body("my-secret")
       "{\\"value\\":\\"my-secret\\"}"
 
   """
