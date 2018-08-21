@@ -56,6 +56,33 @@ defmodule ExAzureKeyVault.Url do
   end
 
   @doc """
+  Returns Azure Key Vault URL for get secrets.
+
+  ## Examples
+
+  Passing a maximum number of 10 results in a page.
+
+      iex> ExAzureKeyVault.Url.get_secrets_url(%ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}, 10, "2016-10-01")
+      "https://my-vault.vault.azure.net/secrets?api-version=2016-10-01&maxresults=10"
+
+  Ignoring maximum number of results.
+
+      iex> ExAzureKeyVault.Url.get_secrets_url(%ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}, nil, "2016-10-01")
+      "https://my-vault.vault.azure.net/secrets?api-version=2016-10-01"
+
+  """
+  @spec get_secrets_url(Url.t, integer | nil, String.t) :: String.t
+  def get_secrets_url(%Url{} = params, max_results \\ nil, api_version) do
+    base_url = base_secrets_url(params.vault_name)
+    api_version_string = get_api_version_string(api_version)
+    if !is_nil(max_results) && max_results != "" do
+      base_url <> api_version_string <> "&maxresults=#{max_results}"
+    else
+      base_url <> api_version_string
+    end
+  end
+
+  @doc """
   Returns body for secret creation.
 
   ## Examples
@@ -71,7 +98,17 @@ defmodule ExAzureKeyVault.Url do
 
   @spec base_secret_url(String.t, String.t) :: String.t
   defp base_secret_url(vault_name, secret_name) do
-    "https://#{vault_name}.vault.azure.net/secrets/#{secret_name}"
+    base_url(vault_name) <> "/secrets/#{secret_name}"
+  end
+
+  @spec base_secrets_url(String.t) :: String.t
+  defp base_secrets_url(vault_name) do
+    base_url(vault_name) <> "/secrets"
+  end
+
+  @spec base_url(String.t) :: String.t
+  defp base_url(vault_name) do
+    "https://#{vault_name}.vault.azure.net"
   end
 
   @spec get_api_version_string(String.t) :: String.t

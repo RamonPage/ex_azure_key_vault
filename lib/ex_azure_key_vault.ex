@@ -81,11 +81,11 @@ defmodule ExAzureKeyVault.Client do
 
   Passing custom parameters.
 
-      iex> ExAzureKeyVault.Client.connect("my-vault", "14e7a376-9abf...", "14e79d90-9abf...", "14e7a11e-9abf...")
+      iex> ExAzureKeyVault.Client.connect("custom-vault", "14e7a376-9abf...", "14e79d90-9abf...", "14e7a11e-9abf...")
       %ExAzureKeyVault.Client{
         api_version: "2016-10-01",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        vault_name: "my-vault"
+        vault_name: "custom-vault"
       }
 
   """
@@ -130,7 +130,7 @@ defmodule ExAzureKeyVault.Client do
       %ExAzureKeyVault.Client{
         api_version: "2016-10-01",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        vault_name: "my-vault",
+        vault_name: "my-vault"
       }, "my-secret", "03b424a49ac3...")
       {:ok, "my-other-value"}
 
@@ -161,6 +161,178 @@ defmodule ExAzureKeyVault.Client do
       {:error, %HTTPoison.Error{reason: reason}} ->
         if reason == :nxdomain do
           {:error, "Error: Couldn't resolve host name #{url}"}
+        else
+          {:error, reason}
+        end
+      _ ->
+        {:error, "Something went wrong"}
+    end
+  end
+
+  @doc """
+  Returns list of secrets.
+
+  ## Examples
+
+  Passing a maximum number of 2 results in a page.
+
+      iex> ExAzureKeyVault.Client.get_secrets(
+      %ExAzureKeyVault.Client{
+        api_version: "2016-10-01",
+        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        vault_name: "my-vault"
+      }, 2)
+      {:ok,
+        %{
+          "nextLink" => "https://my-vault.vault.azure.net:443/secrets?api-version=2016-10-01&$skiptoken=eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6...&maxresults=2",
+          "value" => [
+            %{
+              "attributes" => %{
+                "created" => 1533704004,
+                "enabled" => true,
+                "recoveryLevel" => "Purgeable",
+                "updated" => 1533704004
+              },
+              "id" => "https://my-vault.vault.azure.net/secrets/my-secret"
+            },
+            %{
+              "attributes" => %{
+                "created" => 1532633078,
+                "enabled" => true,
+                "recoveryLevel" => "Purgeable",
+                "updated" => 1532633078
+              },
+              "id" => "https://my-vault.vault.azure.net/secrets/another-secret"
+            }
+          ]
+        }}
+
+  Ignoring maximum number of results.
+
+      iex> ExAzureKeyVault.Client.get_secrets(
+      %ExAzureKeyVault.Client{
+        api_version: "2016-10-01",
+        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        vault_name: "my-vault"
+      })
+      {:ok,
+        %{
+          "nextLink" => nil,
+          "value" => [
+            %{
+              "attributes" => %{
+                "created" => 1533704004,
+                "enabled" => true,
+                "recoveryLevel" => "Purgeable",
+                "updated" => 1533704004
+              },
+              "id" => "https://my-vault.vault.azure.net/secrets/my-secret"
+            },
+            %{
+              "attributes" => %{
+                "created" => 1532633078,
+                "enabled" => true,
+                "recoveryLevel" => "Purgeable",
+                "updated" => 1532633078
+              },
+              "id" => "https://my-vault.vault.azure.net/secrets/another-secret"
+            },
+            %{
+              "attributes" => %{
+                "created" => 1532633078,
+                "enabled" => true,
+                "recoveryLevel" => "Purgeable",
+                "updated" => 1532633078
+              },
+              "id" => "https://my-vault.vault.azure.net/secrets/test-secret"
+            }
+          ]
+        }}
+  """
+  @spec get_secrets(Client.t, integer | nil) :: {:ok, String.t} | {:error, any}
+  def get_secrets(%Client{} = params, max_results \\ nil) do
+    url = Url.new(nil, params.vault_name) |> Url.get_secrets_url(max_results, params.api_version)
+    headers = ["Authorization": params.bearer_token, "Content-Type": "application/json; charset=utf-8"]
+    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    case HTTPoison.get(url, headers, options) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        response = Poison.decode!(body)
+        {:ok, response}
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+        if status
+          |> Integer.to_string()
+          |> String.starts_with?("4") do
+          if body != "" do
+            response = Poison.decode!(body)
+            {:error, response}
+          else
+            {:error, "Error: #{status}: #{url}"}
+          end
+        end
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        if reason == :nxdomain do
+          {:error, "Error: Couldn't resolve host name #{url}"}
+        else
+          {:error, reason}
+        end
+      _ ->
+        {:error, "Something went wrong"}
+    end
+  end
+
+  @doc """
+  Returns next page of secrets in the pagination.
+
+  ## Examples
+
+      iex> client = ExAzureKeyVault.Client.connect()
+      ...
+      iex> {_, secrets} = client |> ExAzureKeyVault.Client.get_secrets(2)
+      ...
+      iex> {_, next_secrets} = client |> ExAzureKeyVault.Client.get_secrets_next(secrets["nextLink"])
+      {:ok,
+        %{
+          "nextLink" => nil,
+          "value" => [
+            %{
+              "attributes" => %{
+                "created" => 1532633078,
+                "enabled" => true,
+                "recoveryLevel" => "Purgeable",
+                "updated" => 1532633078
+              },
+              "id" => "https://my-vault.vault.azure.net/secrets/test-secret"
+            }
+          ]
+        }}
+  """
+  @spec get_secrets_next(Client.t, String.t) :: {:ok, String.t} | {:error, any}
+  def get_secrets_next(%Client{} = params, next_link) do
+    if is_empty(next_link), do: raise ArgumentError, message: "Next link is not present"
+    unless next_link
+      |> String.starts_with?("https://#{params.vault_name}.vault.azure.net") do
+      raise ArgumentError, message: "Next link #{next_link} is not valid"
+    end
+    headers = ["Authorization": params.bearer_token, "Content-Type": "application/json; charset=utf-8"]
+    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    case HTTPoison.get(next_link, headers, options) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        response = Poison.decode!(body)
+        {:ok, response}
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+        if status
+          |> Integer.to_string()
+          |> String.starts_with?("4") do
+          if body != "" do
+            response = Poison.decode!(body)
+            {:error, response}
+          else
+            {:error, "Error: #{status}: #{next_link}"}
+          end
+        end
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        if reason == :nxdomain do
+          {:error, "Error: Couldn't resolve host name #{next_link}"}
         else
           {:error, reason}
         end
