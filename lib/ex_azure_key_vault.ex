@@ -81,11 +81,11 @@ defmodule ExAzureKeyVault.Client do
 
   Passing custom parameters.
 
-      iex> ExAzureKeyVault.Client.connect("my-vault", "14e7a376-9abf...", "14e79d90-9abf...", "14e7a11e-9abf...")
+      iex> ExAzureKeyVault.Client.connect("custom-vault", "14e7a376-9abf...", "14e79d90-9abf...", "14e7a11e-9abf...")
       %ExAzureKeyVault.Client{
         api_version: "2016-10-01",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        vault_name: "my-vault"
+        vault_name: "custom-vault"
       }
 
   """
