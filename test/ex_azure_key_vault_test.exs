@@ -384,6 +384,8 @@ defmodule ExAzureKeyVault.ClientTest do
   end
 
   describe "when next link is invalid" do
+    setup [:setup_application_config]
+
     test "does not list next secrets", context do
       assert_raise ArgumentError, "Next link https://azure.microsoft.com is not valid", fn ->
         with_mock HTTPoison, [
