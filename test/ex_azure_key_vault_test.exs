@@ -38,7 +38,40 @@ defmodule ExAzureKeyVault.ClientTest do
       },
       headers: ["Content-Type": "application/x-www-form-urlencoded"],
       options: [ssl: [versions: [:"tlsv1.2"]]],
-      expected_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      expected_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      next_link: "https://#{@vault_name}.vault.azure.net:443/secrets?api-version=2016-10-01&$skiptoken=eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6...&maxresults=2",
+      secrets_list: %{
+        "nextLink" => nil,
+        "value" => [
+          %{
+            "attributes" => %{
+              "created" => 1533704004,
+              "enabled" => true,
+              "recoveryLevel" => "Purgeable",
+              "updated" => 1533704004
+            },
+            "id" => "https://my-vault.vault.azure.net/secrets/my-secret"
+          },
+          %{
+            "attributes" => %{
+              "created" => 1532633078,
+              "enabled" => true,
+              "recoveryLevel" => "Purgeable",
+              "updated" => 1532633078
+            },
+            "id" => "https://my-vault.vault.azure.net/secrets/another-secret"
+          },
+          %{
+            "attributes" => %{
+              "created" => 1532633078,
+              "enabled" => true,
+              "recoveryLevel" => "Purgeable",
+              "updated" => 1532633078
+            },
+            "id" => "https://my-vault.vault.azure.net/secrets/test-secret"
+          }
+        ]
+      }
     }
   end
 
@@ -130,6 +163,28 @@ defmodule ExAzureKeyVault.ClientTest do
       end
     end
 
+    test "lists secrets", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_200_list() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets()
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:ok, context[:secrets_list]}
+      end
+    end
+
+    test "lists next secrets", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_200_list() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets_next(context[:next_link])
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:ok, context[:secrets_list]}
+      end
+    end
+
     test "creates secret", context do
       with_mock HTTPoison, [
         post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
@@ -151,6 +206,32 @@ defmodule ExAzureKeyVault.ClientTest do
         get: fn(_url, _header, _options) -> response_401_no_body() end
       ] do
         result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secret("my-secret")
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        {type, message} = result
+        assert type == :error
+        assert message =~ "Error: 401"
+      end
+    end
+
+    test "does not list secrets", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_401_no_body() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets()
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        {type, message} = result
+        assert type == :error
+        assert message =~ "Error: 401"
+      end
+    end
+
+    test "does not list next secrets", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_401_no_body() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets_next(context[:next_link])
         assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
         {type, message} = result
         assert type == :error
@@ -212,6 +293,28 @@ defmodule ExAzureKeyVault.ClientTest do
       end
     end
 
+    test "does not list secrets", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_403_error_message() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets()
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:error, %{"error_message" => "Forbidden"}}
+      end
+    end
+
+    test "does not list next secrets", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_403_error_message() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets_next(context[:next_link])
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:error, %{"error_message" => "Forbidden"}}
+      end
+    end
+
     test "does not create secret", context do
       with_mock HTTPoison, [
         post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
@@ -240,6 +343,32 @@ defmodule ExAzureKeyVault.ClientTest do
       end
     end
 
+    test "does not list secrets", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_error_nxdomain() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets()
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        {type, message} = result
+        assert type == :error
+        assert message =~ "Error: Couldn't resolve host name"
+      end
+    end
+
+    test "does not list next secrets", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_error_nxdomain() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets_next(context[:next_link])
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        {type, message} = result
+        assert type == :error
+        assert message =~ "Error: Couldn't resolve host name"
+      end
+    end
+
     test "does not create secret", context do
       with_mock HTTPoison, [
         post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
@@ -250,6 +379,19 @@ defmodule ExAzureKeyVault.ClientTest do
         {type, message} = result
         assert type == :error
         assert message =~ "Error: Couldn't resolve host name"
+      end
+    end
+  end
+
+  describe "when next link is invalid" do
+    test "does not list next secrets", context do
+      assert_raise ArgumentError, "Next link https://azure.microsoft.com is not valid", fn ->
+        with_mock HTTPoison, [
+          post: fn(_url, _body, _header, _options) -> response_200_token(context) end
+        ] do
+          ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets_next("https://azure.microsoft.com")
+          assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        end
       end
     end
   end
@@ -268,6 +410,38 @@ defmodule ExAzureKeyVault.ClientTest do
   defp response_200_value() do
     {:ok, %HTTPoison.Response{
       body: "{\"value\":\"my-value\"}",
+      status_code: 200
+    }}
+  end
+
+  defp response_200_list() do
+    {:ok, %HTTPoison.Response{
+      body: "{\"value\":
+        [{
+          \"id\":\"https://my-vault.vault.azure.net/secrets/my-secret\",
+          \"attributes\":{
+            \"updated\":1533704004,
+            \"recoveryLevel\":\"Purgeable\",
+            \"enabled\":true,
+            \"created\":1533704004
+          }
+        },{
+          \"id\":\"https://my-vault.vault.azure.net/secrets/another-secret\",
+          \"attributes\":{
+            \"updated\":1532633078,
+            \"recoveryLevel\":\"Purgeable\",
+            \"enabled\":true,
+            \"created\":1532633078
+          }
+        },{
+          \"id\":\"https://my-vault.vault.azure.net/secrets/test-secret\",
+          \"attributes\":{
+            \"updated\":1532633078,
+            \"recoveryLevel\":\"Purgeable\",
+            \"enabled\":true,
+            \"created\":1532633078
+          }
+        }],\"nextLink\":null}",
       status_code: 200
     }}
   end
