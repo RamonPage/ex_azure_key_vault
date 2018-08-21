@@ -292,7 +292,7 @@ defmodule ExAzureKeyVault.Client do
         vault_name: "my-vault"
       }
       iex> {_, secrets} = client |> ExAzureKeyVault.Client.get_secrets(2)
-      iex> {_, next_secrets} = client |> ExAzureKeyVault.Client.get_next_secrets(secrets["nextLink"])
+      iex> {_, next_secrets} = client |> ExAzureKeyVault.Client.get_secrets_next(secrets["nextLink"])
       {:ok,
         %{
           "nextLink" => nil,
@@ -309,8 +309,8 @@ defmodule ExAzureKeyVault.Client do
           ]
         }}
   """
-  @spec get_next_secrets(Client.t, String.t) :: {:ok, String.t} | {:error, any}
-  def get_next_secrets(%Client{} = params, next_link) do
+  @spec get_secrets_next(Client.t, String.t) :: {:ok, String.t} | {:error, any}
+  def get_secrets_next(%Client{} = params, next_link) do
     if is_empty(next_link), do: raise ArgumentError, message: "Next link is not present"
     unless next_link
       |> String.starts_with?("https://#{params.vault_name}.vault.azure.net") do
