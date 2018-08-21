@@ -286,12 +286,9 @@ defmodule ExAzureKeyVault.Client do
   ## Examples
 
       iex> client = ExAzureKeyVault.Client.connect()
-      %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
-        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        vault_name: "my-vault"
-      }
+      ...
       iex> {_, secrets} = client |> ExAzureKeyVault.Client.get_secrets(2)
+      ...
       iex> {_, next_secrets} = client |> ExAzureKeyVault.Client.get_secrets_next(secrets["nextLink"])
       {:ok,
         %{
