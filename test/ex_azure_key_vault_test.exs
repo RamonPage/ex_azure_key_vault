@@ -3,6 +3,8 @@ defmodule ExAzureKeyVault.ClientTest do
   doctest ExAzureKeyVault.Client, except: [
     connect: 0, connect: 4,
     get_secret: 2, get_secret: 3,
+    get_secrets: 1, get_secrets: 2,
+    get_next_secrets: 2,
     create_secret: 3
   ]
 

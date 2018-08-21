@@ -60,7 +60,7 @@ defmodule ExAzureKeyVault.Url do
 
   ## Examples
 
-  Passing a maximum number of 10 results in a page. If not specified, the service will return up to 25 results.
+  Passing a maximum number of 10 results in a page.
 
       iex> ExAzureKeyVault.Url.get_secrets_url(%ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}, 10, "2016-10-01")
       "https://my-vault.vault.azure.net/secrets?api-version=2016-10-01&maxresults=10"
