@@ -50,7 +50,7 @@ defmodule ExAzureKeyVault.ClientTest do
               "recoveryLevel" => "Purgeable",
               "updated" => 1533704004
             },
-            "id" => "https://my-vault.vault.azure.net/secrets/my-secret"
+            "id" => "https://#{@vault_name}.vault.azure.net/secrets/my-secret"
           },
           %{
             "attributes" => %{
@@ -59,7 +59,7 @@ defmodule ExAzureKeyVault.ClientTest do
               "recoveryLevel" => "Purgeable",
               "updated" => 1532633078
             },
-            "id" => "https://my-vault.vault.azure.net/secrets/another-secret"
+            "id" => "https://#{@vault_name}.vault.azure.net/secrets/another-secret"
           },
           %{
             "attributes" => %{
@@ -68,7 +68,7 @@ defmodule ExAzureKeyVault.ClientTest do
               "recoveryLevel" => "Purgeable",
               "updated" => 1532633078
             },
-            "id" => "https://my-vault.vault.azure.net/secrets/test-secret"
+            "id" => "https://#{@vault_name}.vault.azure.net/secrets/test-secret"
           }
         ]
       }
@@ -418,7 +418,7 @@ defmodule ExAzureKeyVault.ClientTest do
     {:ok, %HTTPoison.Response{
       body: "{\"value\":
         [{
-          \"id\":\"https://my-vault.vault.azure.net/secrets/my-secret\",
+          \"id\":\"https://#{@vault_name}.vault.azure.net/secrets/my-secret\",
           \"attributes\":{
             \"updated\":1533704004,
             \"recoveryLevel\":\"Purgeable\",
@@ -426,7 +426,7 @@ defmodule ExAzureKeyVault.ClientTest do
             \"created\":1533704004
           }
         },{
-          \"id\":\"https://my-vault.vault.azure.net/secrets/another-secret\",
+          \"id\":\"https://#{@vault_name}.vault.azure.net/secrets/another-secret\",
           \"attributes\":{
             \"updated\":1532633078,
             \"recoveryLevel\":\"Purgeable\",
@@ -434,7 +434,7 @@ defmodule ExAzureKeyVault.ClientTest do
             \"created\":1532633078
           }
         },{
-          \"id\":\"https://my-vault.vault.azure.net/secrets/test-secret\",
+          \"id\":\"https://#{@vault_name}.vault.azure.net/secrets/test-secret\",
           \"attributes\":{
             \"updated\":1532633078,
             \"recoveryLevel\":\"Purgeable\",
