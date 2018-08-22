@@ -135,26 +135,14 @@ defmodule ExAzureKeyVault.Client do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
         {:ok, response["value"]}
-      {:ok, %HTTPoison.Response{status_code: 404, body: body}} ->
-        response = Poison.decode!(body)
-        {:error, response}
+      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
+        HTTPUtils.response_client_error_or_ok(status, url)
       {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
-        if status
-          |> Integer.to_string()
-          |> String.starts_with?("4") do
-          if body != "" do
-            response = Poison.decode!(body)
-            {:error, response}
-          else
-            {:error, "Error: #{status}: #{url}"}
-          end
-        end
+        HTTPUtils.response_client_error_or_ok(status, url, body)
+      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
+        HTTPUtils.response_server_error(:nxdomain, url)
       {:error, %HTTPoison.Error{reason: reason}} ->
-        if reason == :nxdomain do
-          {:error, "Error: Couldn't resolve host name #{url}"}
-        else
-          {:error, reason}
-        end
+        HTTPUtils.response_server_error(reason)
       _ ->
         {:error, "Something went wrong"}
     end
@@ -239,23 +227,14 @@ defmodule ExAzureKeyVault.Client do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
         {:ok, response}
+      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
+        HTTPUtils.response_client_error_or_ok(status, url)
       {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
-        if status
-          |> Integer.to_string()
-          |> String.starts_with?("4") do
-          if body != "" do
-            response = Poison.decode!(body)
-            {:error, response}
-          else
-            {:error, "Error: #{status}: #{url}"}
-          end
-        end
+        HTTPUtils.response_client_error_or_ok(status, url, body)
+      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
+        HTTPUtils.response_server_error(:nxdomain, url)
       {:error, %HTTPoison.Error{reason: reason}} ->
-        if reason == :nxdomain do
-          {:error, "Error: Couldn't resolve host name #{url}"}
-        else
-          {:error, reason}
-        end
+        HTTPUtils.response_server_error(reason)
       _ ->
         {:error, "Something went wrong"}
     end
@@ -300,23 +279,14 @@ defmodule ExAzureKeyVault.Client do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
         {:ok, response}
+      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
+        HTTPUtils.response_client_error_or_ok(status, next_link)
       {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
-        if status
-          |> Integer.to_string()
-          |> String.starts_with?("4") do
-          if body != "" do
-            response = Poison.decode!(body)
-            {:error, response}
-          else
-            {:error, "Error: #{status}: #{next_link}"}
-          end
-        end
+        HTTPUtils.response_client_error_or_ok(status, next_link, body)
+      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
+        HTTPUtils.response_server_error(:nxdomain, next_link)
       {:error, %HTTPoison.Error{reason: reason}} ->
-        if reason == :nxdomain do
-          {:error, "Error: Couldn't resolve host name #{next_link}"}
-        else
-          {:error, reason}
-        end
+        HTTPUtils.response_server_error(reason)
       _ ->
         {:error, "Something went wrong"}
     end
@@ -340,23 +310,14 @@ defmodule ExAzureKeyVault.Client do
     case HTTPoison.put(url, body, headers, options) do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         :ok
+      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
+        HTTPUtils.response_client_error_or_ok(status, url)
       {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
-        if status
-          |> Integer.to_string()
-          |> String.starts_with?("4") do
-          if body != "" do
-            response = Poison.decode!(body)
-            {:error, response}
-          else
-            {:error, "Error: #{status}: #{url}"}
-          end
-        end
+        HTTPUtils.response_client_error_or_ok(status, url, body)
+      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
+        HTTPUtils.response_server_error(:nxdomain, url)
       {:error, %HTTPoison.Error{reason: reason}} ->
-        if reason == :nxdomain do
-          {:error, "Error: Couldn't resolve host name #{url}"}
-        else
-          {:error, reason}
-        end
+        HTTPUtils.response_server_error(reason)
       _ ->
         {:error, "Something went wrong"}
     end

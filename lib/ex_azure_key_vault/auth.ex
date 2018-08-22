@@ -56,19 +56,14 @@ defmodule ExAzureKeyVault.Auth do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
         {:ok, "Bearer #{response["access_token"]}"}
+      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
+        HTTPUtils.response_client_error_or_ok(status, url)
       {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
-        if status
-          |> Integer.to_string()
-          |> String.starts_with?("4") do
-          if body != "" do
-            response = Poison.decode!(body)
-            {:error, response}
-          else
-            {:error, "Error: #{status}: #{url}"}
-          end
-        end
+        HTTPUtils.response_client_error_or_ok(status, url, body)
+      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
+        HTTPUtils.response_server_error(:nxdomain, url)
       {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, reason}
+        HTTPUtils.response_server_error(reason)
       _ ->
         {:error, "Something went wrong"}
     end
