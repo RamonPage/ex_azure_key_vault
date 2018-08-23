@@ -383,6 +383,54 @@ defmodule ExAzureKeyVault.ClientTest do
     end
   end
 
+  describe "when an error occurs" do
+    setup [:setup_application_config]
+
+    test "does not get secret", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_error_econnrefused() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secret("my-secret")
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:error, :econnrefused}
+      end
+    end
+
+    test "does not list secrets", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_error_econnrefused() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets()
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:error, :econnrefused}
+      end
+    end
+
+    test "does not list next secrets", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        get: fn(_url, _header, _options) -> response_error_econnrefused() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets_next(context[:next_link])
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:error, :econnrefused}
+      end
+    end
+
+    test "does not create secret", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        put: fn(_url, _body, _header, _options) -> response_error_econnrefused() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.create_secret("my-secret", "my-value")
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:error, :econnrefused}
+      end
+    end
+  end
+
   describe "when next link is invalid" do
     setup [:setup_application_config]
 
@@ -471,6 +519,10 @@ defmodule ExAzureKeyVault.ClientTest do
 
   defp response_error_nxdomain() do
     {:error, %HTTPoison.Error{reason: :nxdomain}}
+  end
+
+  defp response_error_econnrefused() do
+    {:error, %HTTPoison.Error{reason: :econnrefused}}
   end
 
   defp setup_environment_variables(_context) do

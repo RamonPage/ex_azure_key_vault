@@ -28,7 +28,7 @@ defmodule ExAzureKeyVault.AuthTest do
   describe "when status code is 200" do
     test "gets bearer token", context do
       expected_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-      response = { :ok, %HTTPoison.Response{
+      response = {:ok, %HTTPoison.Response{
         body: "{\"access_token\":\"#{expected_token}\"}",
         status_code: 200
       }}
@@ -42,7 +42,7 @@ defmodule ExAzureKeyVault.AuthTest do
 
   describe "when status code is 40x and body is empty" do
     test "shows custom error message", context do
-      response = { :ok, %HTTPoison.Response{
+      response = {:ok, %HTTPoison.Response{
         body: "",
         status_code: 401
       }}
@@ -56,7 +56,7 @@ defmodule ExAzureKeyVault.AuthTest do
 
   describe "when status code is 40x and body is not empty" do
     test "shows error message from body", context do
-      response = { :ok, %HTTPoison.Response{
+      response = {:ok, %HTTPoison.Response{
         body: "{\"error_message\":\"Not found\"}",
         status_code: 404
       }}
@@ -64,6 +64,30 @@ defmodule ExAzureKeyVault.AuthTest do
         result = context[:auth] |> ExAzureKeyVault.Auth.get_bearer_token()
         assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
         assert result == {:error, %{"error_message" => "Not found"}}
+      end
+    end
+  end
+
+  describe "when hostname is wrong" do
+    test "shows error message", context do
+      error = {:error, %HTTPoison.Error{reason: :nxdomain}}
+      with_mock HTTPoison, [post: fn(_url, _body, _header, _options) -> error end] do
+        result = context[:auth] |> ExAzureKeyVault.Auth.get_bearer_token()
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        {type, message} = result
+        assert type == :error
+        assert message =~ "Error: Couldn't resolve host name"
+      end
+    end
+  end
+
+  describe "when an error occurs" do
+    test "shows error message", context do
+      error = {:error, %HTTPoison.Error{reason: :econnrefused}}
+      with_mock HTTPoison, [post: fn(_url, _body, _header, _options) -> error end] do
+        result = context[:auth] |> ExAzureKeyVault.Auth.get_bearer_token()
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:error, :econnrefused}
       end
     end
   end
