@@ -3,6 +3,7 @@ defmodule ExAzureKeyVault.Auth do
   Internal module for getting authentication token for Azure connection.
   """
   alias __MODULE__
+  alias ExAzureKeyVault.HTTPUtils
 
   @enforce_keys [:client_id, :client_secret, :tenant_id]
   defstruct(
@@ -49,25 +50,20 @@ defmodule ExAzureKeyVault.Auth do
   def get_bearer_token(%Auth{} = params) do
     url = auth_url(params.tenant_id)
     body = auth_body(params.client_id, params.client_secret)
-    headers = ["Content-Type": "application/x-www-form-urlencoded"]
-    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    headers = HTTPUtils.headers_form_urlencoded
+    options = HTTPUtils.options_ssl
     case HTTPoison.post(url, body, headers, options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
         {:ok, "Bearer #{response["access_token"]}"}
+      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
+        HTTPUtils.response_client_error_or_ok(status, url)
       {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
-        if status
-          |> Integer.to_string()
-          |> String.starts_with?("4") do
-          if body != "" do
-            response = Poison.decode!(body)
-            {:error, response}
-          else
-            {:error, "Error: #{status}: #{url}"}
-          end
-        end
+        HTTPUtils.response_client_error_or_ok(status, url, body)
+      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
+        HTTPUtils.response_server_error(:nxdomain, url)
       {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, reason}
+        HTTPUtils.response_server_error(reason)
       _ ->
         {:error, "Something went wrong"}
     end
