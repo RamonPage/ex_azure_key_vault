@@ -1,7 +1,7 @@
 defmodule ExAzureKeyVault.MixProject do
   use Mix.Project
 
-  @version "0.0.2"
+  @version "0.1.0"
   @github_url "https://github.com/RamonPage/ex_azure_key_vault"
 
   def project do
