@@ -23,7 +23,7 @@ defmodule ExAzureKeyVault.Url do
       %ExAzureKeyVault.Url{secret_name: "my-secret", vault_name: "my-vault"}
 
   """
-  @spec new(String.t, String.t) :: Url.t
+  @spec new(String.t | nil, String.t) :: Url.t
   def new(secret_name, vault_name) do
     %Url{secret_name: secret_name, vault_name: vault_name}
   end
