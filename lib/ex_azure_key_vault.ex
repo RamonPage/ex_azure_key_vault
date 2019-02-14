@@ -97,11 +97,11 @@ defmodule ExAzureKeyVault.Client do
     tenant_id = get_env(:azure_tenant_id, tenant_id)
     client_id = get_env(:azure_client_id, client_id)
     client_secret = get_env(:azure_client_secret, client_secret)
-    with :ok <- non_empty(vault_name, :empty_vault_name),
-         :ok <- non_empty(tenant_id, :empty_tenant_ID),
-         :ok <- non_empty(client_id, :empty_client_ID),
-         :ok <- non_empty(client_secret, :empty_client_secret),
-         %Auth{} = auth <- Auth.new(client_id, client_secret, tenant_id),
+    if is_empty(vault_name), do: raise ArgumentError, message: "Vault name is not present"
+    if is_empty(tenant_id), do: raise ArgumentError, message: "Tenant ID is not present"
+    if is_empty(client_id), do: raise ArgumentError, message: "Client ID is not present"
+    if is_empty(client_secret), do: raise ArgumentError, message: "Client secret is not present"
+    with %Auth{} = auth <- Auth.new(client_id, client_secret, tenant_id),
          {:ok, bearer_token} <- auth |> Auth.get_bearer_token,
          %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
       client
@@ -340,14 +340,4 @@ defmodule ExAzureKeyVault.Client do
   defp is_empty(string) do
     is_nil(string) || String.trim(string) == ""
   end
-
-  @spec non_empty(String.t | nil, any) :: :ok | {:error, any}
-  defp non_empty(string, e) do
-    if is_empty(string) do
-      {:error, e}
-    else
-      :ok
-    end
-  end
-
 end
