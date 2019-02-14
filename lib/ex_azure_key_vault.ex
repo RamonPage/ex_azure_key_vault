@@ -131,21 +131,11 @@ defmodule ExAzureKeyVault.Client do
     url = Url.new(secret_name, params.vault_name) |> Url.get_url(secret_version, params.api_version)
     headers = HTTPUtils.headers_authorization(params.bearer_token)
     options = HTTPUtils.options_ssl
-    case HTTPoison.get(url, headers, options) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        response = Poison.decode!(body)
-        {:ok, response["value"]}
-      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
-        HTTPUtils.response_client_error_or_ok(status, url)
-      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
-        HTTPUtils.response_client_error_or_ok(status, url, body)
-      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
-        HTTPUtils.response_server_error(:nxdomain, url)
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        HTTPUtils.response_server_error(reason)
-      _ ->
-        {:error, "Something went wrong"}
-    end
+    HTTPoison.get(url, headers, options)
+    |> handle_http_response(url, fn body ->
+         response = Poison.decode!(body)
+         {:ok, response["value"]}
+       end)
   end
 
   @doc """
@@ -223,21 +213,11 @@ defmodule ExAzureKeyVault.Client do
     url = Url.new(nil, params.vault_name) |> Url.get_secrets_url(max_results, params.api_version)
     headers = HTTPUtils.headers_authorization(params.bearer_token)
     options = HTTPUtils.options_ssl
-    case HTTPoison.get(url, headers, options) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        response = Poison.decode!(body)
-        {:ok, response}
-      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
-        HTTPUtils.response_client_error_or_ok(status, url)
-      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
-        HTTPUtils.response_client_error_or_ok(status, url, body)
-      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
-        HTTPUtils.response_server_error(:nxdomain, url)
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        HTTPUtils.response_server_error(reason)
-      _ ->
-        {:error, "Something went wrong"}
-    end
+    HTTPoison.get(url, headers, options)
+    |> handle_http_response(url, fn body ->
+         response = Poison.decode!(body)
+         {:ok, response}
+       end)
   end
 
   @doc """
@@ -275,21 +255,11 @@ defmodule ExAzureKeyVault.Client do
     end
     headers = HTTPUtils.headers_authorization(params.bearer_token)
     options = HTTPUtils.options_ssl
-    case HTTPoison.get(next_link, headers, options) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        response = Poison.decode!(body)
-        {:ok, response}
-      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
-        HTTPUtils.response_client_error_or_ok(status, next_link)
-      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
-        HTTPUtils.response_client_error_or_ok(status, next_link, body)
-      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
-        HTTPUtils.response_server_error(:nxdomain, next_link)
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        HTTPUtils.response_server_error(reason)
-      _ ->
-        {:error, "Something went wrong"}
-    end
+    HTTPoison.get(next_link, headers, options)
+    |> handle_http_response(next_link, fn body ->
+         response = Poison.decode!(body)
+         {:ok, response}
+       end)
   end
 
   @doc """
@@ -307,20 +277,24 @@ defmodule ExAzureKeyVault.Client do
     body = Url.get_body(secret_value)
     headers = HTTPUtils.headers_authorization(params.bearer_token)
     options = HTTPUtils.options_ssl
-    case HTTPoison.put(url, body, headers, options) do
-      {:ok, %HTTPoison.Response{status_code: 200}} ->
-        :ok
-      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
-        HTTPUtils.response_client_error_or_ok(status, url)
-      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
-        HTTPUtils.response_client_error_or_ok(status, url, body)
-      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
-        HTTPUtils.response_server_error(:nxdomain, url)
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        HTTPUtils.response_server_error(reason)
-      _ ->
-        {:error, "Something went wrong"}
-    end
+    HTTPoison.put(url, body, headers, options) |> handle_http_response(url)
+  end
+
+  @doc """
+  Deletes a secret.
+
+  ## Examples
+
+      iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret("my-secret")
+      :ok
+
+  """
+  @spec delete_secret(Client.t, String.t) :: :ok | {:error, any}
+  def delete_secret(%Client{} = params, secret_name) do
+    url = Url.new(secret_name, params.vault_name) |> Url.get_url(params.api_version)
+    headers = HTTPUtils.headers_authorization(params.bearer_token)
+    options = HTTPUtils.options_ssl
+    HTTPoison.delete(url, headers, options) |> handle_http_response(url)
   end
 
   @spec get_env(atom, String.t) :: String.t
@@ -339,5 +313,22 @@ defmodule ExAzureKeyVault.Client do
   @spec is_empty(String.t) :: boolean
   defp is_empty(string) do
     is_nil(string) || String.trim(string) == ""
+  end
+
+  defp handle_http_response(http_response, request_url, callback_fun \\ fn _body -> :ok end) do
+    case http_response do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        callback_fun.(body)
+      {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
+        HTTPUtils.response_client_error_or_ok(status, request_url)
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+        HTTPUtils.response_client_error_or_ok(status, request_url, body)
+      {:error, %HTTPoison.Error{reason: :nxdomain}} ->
+        HTTPUtils.response_server_error(:nxdomain, request_url)
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        HTTPUtils.response_server_error(reason)
+      _ ->
+        {:error, "Something went wrong"}
+    end
   end
 end
