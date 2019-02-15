@@ -195,6 +195,17 @@ defmodule ExAzureKeyVault.ClientTest do
         assert result == :ok
       end
     end
+
+    test "deletes secret", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        delete: fn(_url, _header, _options) -> response_200_value() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret("my-secret")
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == :ok
+      end
+    end
   end
 
   describe "when status code is 40x and body is empty" do
@@ -251,6 +262,19 @@ defmodule ExAzureKeyVault.ClientTest do
         assert message =~ "Error: 401"
       end
     end
+
+    test "does not delete secret", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        delete: fn(_url, _header, _options) -> response_401_no_body() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret("my-secret")
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        {type, message} = result
+        assert type == :error
+        assert message =~ "Error: 401"
+      end
+    end
   end
 
   describe "when status code is 404 and body is not empty" do
@@ -273,6 +297,17 @@ defmodule ExAzureKeyVault.ClientTest do
         put: fn(_url, _body, _header, _options) -> response_404_error_message() end
       ] do
         result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.create_secret("my-secret", "my-value")
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:error, %{"error_message" => "Not found"}}
+      end
+    end
+
+    test "does not delete secret", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        delete: fn(_url, _header, _options) -> response_404_error_message() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret("my-secret")
         assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
         assert result == {:error, %{"error_message" => "Not found"}}
       end
@@ -321,6 +356,17 @@ defmodule ExAzureKeyVault.ClientTest do
         put: fn(_url, _body, _header, _options) -> response_403_error_message() end
       ] do
         result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.create_secret("my-secret", "my-value")
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:error, %{"error_message" => "Forbidden"}}
+      end
+    end
+
+    test "does not delete secret", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        delete: fn(_url, _header, _options) -> response_403_error_message() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret("my-secret")
         assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
         assert result == {:error, %{"error_message" => "Forbidden"}}
       end
@@ -381,6 +427,19 @@ defmodule ExAzureKeyVault.ClientTest do
         assert message =~ "Error: Couldn't resolve host name"
       end
     end
+
+    test "does not delete secret", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        delete: fn(_url, _header, _options) -> response_error_nxdomain() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret("my-secret")
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        {type, message} = result
+        assert type == :error
+        assert message =~ "Error: Couldn't resolve host name"
+      end
+    end
   end
 
   describe "when an error occurs" do
@@ -425,6 +484,17 @@ defmodule ExAzureKeyVault.ClientTest do
         put: fn(_url, _body, _header, _options) -> response_error_econnrefused() end
       ] do
         result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.create_secret("my-secret", "my-value")
+        assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        assert result == {:error, :econnrefused}
+      end
+    end
+
+    test "does not delete secret", context do
+      with_mock HTTPoison, [
+        post: fn(_url, _body, _header, _options) -> response_200_token(context) end,
+        delete: fn(_url, _header, _options) -> response_error_econnrefused() end
+      ] do
+        result = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret("my-secret")
         assert_called HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
         assert result == {:error, :econnrefused}
       end
