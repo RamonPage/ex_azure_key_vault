@@ -54,4 +54,10 @@ iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.create_secret
 :ok
 ```
 
+### Deleting a secret
+```elixir
+iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret("my-secret")
+:ok
+```
+
 Based on [Ruby wrapper from stuartbarr](https://github.com/stuartbarr/azure-key-vault).
