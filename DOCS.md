@@ -46,3 +46,9 @@ iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secret("m
 iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.create_secret("my-new-secret", "my-new-value")
 :ok
 ```
+
+### Deleting a secret
+```elixir
+iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret("my-secret")
+:ok
+```
