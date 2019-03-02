@@ -4,7 +4,6 @@
 
   * Fixing types.
 
-
 ## v0.2.0
 
   * Adding support for delete secret.
