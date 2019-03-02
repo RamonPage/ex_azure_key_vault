@@ -297,7 +297,7 @@ defmodule ExAzureKeyVault.Client do
     HTTPoison.delete(url, headers, options) |> handle_http_response(url)
   end
 
-  @spec get_env(atom, String.t) :: String.t
+  @spec get_env(atom, String.t | nil) :: String.t
   defp get_env(key, default) do
     default || Application.get_env(:ex_azure_key_vault, key) |> return_value()
   end
@@ -310,7 +310,7 @@ defmodule ExAzureKeyVault.Client do
   @spec return_value(String.t) :: String.t
   defp return_value(value), do: value
 
-  @spec is_empty(String.t) :: boolean
+  @spec is_empty(String.t | nil) :: boolean
   defp is_empty(string) do
     is_nil(string) || String.trim(string) == ""
   end
