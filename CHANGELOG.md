@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.2
+
+  * Fixing `parse_trans` warnings.
+
 ## v0.2.1
 
   * Fixing types.
