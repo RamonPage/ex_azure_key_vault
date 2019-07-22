@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.3
+
+  * Updating dependencies.
+
 ## v0.2.2
 
   * Fixing `parse_trans` warnings.
