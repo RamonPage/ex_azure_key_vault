@@ -54,7 +54,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
       {:ok, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
 
   """
-  @spec get_bearer_token(ClientAssertionAuth.t, String.t) :: {:ok, String.t} | {:error, any}
+  @spec get_bearer_token(ClientAssertionAuth.t) :: {:ok, String.t} | {:error, any}
   def get_bearer_token(%ClientAssertionAuth{} = params) do
     client_assertion = auth_client_assertion(
       params.client_id,
