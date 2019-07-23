@@ -87,5 +87,6 @@ config :ex_azure_key_vault,
 iex(1)> ExAzureKeyVault.Client.certConnect() |> ExAzureKeyVault.Client.get_secret("my-secret")
 {:ok, "my-value"}
 ```
+***
 
-Based on [Ruby wrapper from stuartbarr](https://github.com/stuartbarr/azure-key-vault).
+Thanks to [stuartbarr](https://github.com/stuartbarr/azure-key-vault) for the inspiration.
