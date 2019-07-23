@@ -25,11 +25,11 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
 
   ## Examples
 
-      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...", "934367bf1c97033...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF")
+      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...", "Dss7v2YI3GgCGfl...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF")
       %ExAzureKeyVault.Auth{
         client_id: "6f185f82-9909...",
         tenant_id: "6f1861e4-9909...",
-        cert_base64_thumbprint: "Dss7v2YI3GgCGflR888UpBd6A9c=",
+        cert_base64_thumbprint: "Dss7v2YI3GgCGfl...",
         cert_private_key_pem: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF"
       }
 
@@ -49,7 +49,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
 
   ## Examples
 
-      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...", "934367bf1c97033...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF")
+      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...", "Dss7v2YI3GgCGfl...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF")
       ...(1)> |> ExAzureKeyVault.ClientAssertionAuth.get_bearer_token()
       {:ok, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
 
