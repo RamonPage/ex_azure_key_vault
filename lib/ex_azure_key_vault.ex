@@ -5,6 +5,7 @@ defmodule ExAzureKeyVault.Client do
   alias __MODULE__
   alias ExAzureKeyVault.APIVersion
   alias ExAzureKeyVault.Auth
+  alias ExAzureKeyVault.ClientAssertionAuth
   alias ExAzureKeyVault.HTTPUtils
   alias ExAzureKeyVault.Url
 
@@ -103,6 +104,66 @@ defmodule ExAzureKeyVault.Client do
     if is_empty(client_secret), do: raise ArgumentError, message: "Client secret is not present"
     with %Auth{} = auth <- Auth.new(client_id, client_secret, tenant_id),
          {:ok, bearer_token} <- auth |> Auth.get_bearer_token,
+         %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
+      client
+    else
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc ~S"""
+  Connects to Azure Key Vault using client assertion with certificate.
+
+  ## Examples
+
+  When defining environment variables and/or adding to configuration.
+
+      $ export AZURE_CLIENT_ID="14e79d90-9abf..."
+      $ export AZURE_TENANT_ID="14e7a376-9abf..."
+      $ export AZURE_VAULT_NAME="my-vault"
+      $ export AZURE_CERT_BASE64_THUMBPRINT="Dss7v2YI3GgCGfl..."
+      $ export AZURE_CERT_PRIVATE_KEY_PEM="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF..."
+
+      # Config.exs
+      config :ex_azure_key_vault,
+        azure_client_id: {:system, "AZURE_CLIENT_ID"},
+        azure_tenant_id: {:system, "AZURE_TENANT_ID"},
+        azure_vault_name: {:system, "AZURE_VAULT_NAME"}
+        azure_cert_base64_thumbprint: {:system, "AZURE_CERT_BASE64_THUMBPRINT"},
+        azure_cert_private_key_pem: {:system, "AZURE_CERT_PRIVATE_KEY_PEM"}
+
+      iex(1)> ExAzureKeyVault.Client.certConnect()
+      %ExAzureKeyVault.Client{
+        api_version: "2016-10-01",
+        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        vault_name: "my-vault"
+      }
+
+  Passing custom parameters.
+
+      iex(1)> ExAzureKeyVault.Client.certConnect("custom-vault", "14e7a376-9abf...", "14e79d90-9abf...", "Dss7v2YI3GgCGfl...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF...")
+      %ExAzureKeyVault.Client{
+        api_version: "2016-10-01",
+        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        vault_name: "custom-vault"
+      }
+
+  """
+  @spec certConnect() :: Client.t | {:error, any}
+  @spec certConnect(String.t | nil, String.t | nil, String.t | nil, String.t | nil, String.t | nil) :: Client.t | {:error, any}
+  def certConnect(vault_name \\ nil, tenant_id \\ nil, client_id \\ nil, cert_base64_thumbprint \\ nil, cert_private_key_pem \\ nil) do
+    vault_name = get_env(:azure_vault_name, vault_name)
+    tenant_id = get_env(:azure_tenant_id, tenant_id)
+    client_id = get_env(:azure_client_id, client_id)
+    cert_base64_thumbprint = get_env(:azure_cert_base64_thumbprint, cert_base64_thumbprint)
+    cert_private_key_pem = get_env(:azure_cert_private_key_pem, cert_private_key_pem)
+    if is_empty(vault_name), do: raise ArgumentError, message: "Vault name is not present"
+    if is_empty(tenant_id), do: raise ArgumentError, message: "Tenant ID is not present"
+    if is_empty(client_id), do: raise ArgumentError, message: "Client ID is not present"
+    if is_empty(cert_base64_thumbprint), do: raise ArgumentError, message: "Certificate base64 thumbprint is not present"
+    if is_empty(cert_private_key_pem), do: raise ArgumentError, message: "Certificate private key PEM is not present"
+    with %ClientAssertionAuth{} = auth <- ClientAssertionAuth.new(client_id, tenant_id, cert_base64_thumbprint, cert_private_key_pem),
+         {:ok, bearer_token} <- auth |> ClientAssertionAuth.get_bearer_token,
          %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
       client
     else
