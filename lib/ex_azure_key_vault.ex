@@ -162,9 +162,10 @@ defmodule ExAzureKeyVault.Client do
     if is_empty(client_id), do: raise ArgumentError, message: "Client ID is not present"
     if is_empty(cert_base64_thumbprint), do: raise ArgumentError, message: "Certificate base64 thumbprint is not present"
     if is_empty(cert_private_key_pem), do: raise ArgumentError, message: "Certificate private key PEM is not present"
-    with %ClientAssertionAuth{} = auth <- ClientAssertionAuth.new(client_id, tenant_id, cert_base64_thumbprint, cert_private_key_pem),
-         {:ok, bearer_token} <- auth |> ClientAssertionAuth.get_bearer_token,
-         %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
+    with cert_private_key_pem <- cert_private_key_pem |> String.replace("\\n", "\n"),
+        %ClientAssertionAuth{} = auth <- ClientAssertionAuth.new(client_id, tenant_id, cert_base64_thumbprint, cert_private_key_pem),
+        {:ok, bearer_token} <- auth |> ClientAssertionAuth.get_bearer_token,
+        %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
       client
     else
       {:error, reason} -> {:error, reason}
