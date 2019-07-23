@@ -60,4 +60,32 @@ iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret
 :ok
 ```
 
+## Using client assertion to connect to Azure
+
+For additional security, `ex_azure_key_vault` accepts client assertion instead of a client secret. To do so, first you need to upload a certificate to your Azure App Registration. Then pass the certificate SHA-1 thumbprint in base64 format and the private key in PEM format to `ex_azure_key_vault`.
+
+```bash
+$ export AZURE_CLIENT_ID="14e79d90-9abf..."
+$ export AZURE_TENANT_ID="14e7a376-9abf..."
+$ export AZURE_VAULT_NAME="my-vault"
+$ export AZURE_CERT_BASE64_THUMBPRINT="Dss7v2YI3GgCGfl...",
+$ export AZURE_CERT_PRIVATE_KEY_PEM="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF..."
+```
+
+```elixir
+# Config.exs
+config :ex_azure_key_vault,
+  azure_client_id: {:system, "AZURE_CLIENT_ID"},
+  azure_tenant_id: {:system, "AZURE_TENANT_ID"},
+  azure_vault_name: {:system, "AZURE_VAULT_NAME"},
+  azure_cert_base64_thumbprint: {:system, "AZURE_CERT_BASE64_THUMBPRINT"},
+  azure_cert_private_key_pem: {:system, "AZURE_CERT_PRIVATE_KEY_PEM"}
+```
+
+### Getting a secret
+```elixir
+iex(1)> ExAzureKeyVault.Client.certConnect() |> ExAzureKeyVault.Client.get_secret("my-secret")
+{:ok, "my-value"}
+```
+
 Based on [Ruby wrapper from stuartbarr](https://github.com/stuartbarr/azure-key-vault).
