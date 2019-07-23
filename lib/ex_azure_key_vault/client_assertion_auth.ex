@@ -5,19 +5,19 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
   alias __MODULE__
   alias ExAzureKeyVault.HTTPUtils
 
-  @enforce_keys [:client_id, :tenant_id, :cert_thumbprint, :private_key_pem]
+  @enforce_keys [:client_id, :tenant_id, :cert_base64_thumbprint, :cert_private_key_pem]
   defstruct(
     client_id: nil,
     tenant_id: nil,
-    cert_thumbprint: nil,
-    private_key_pem: nil
+    cert_base64_thumbprint: nil,
+    cert_private_key_pem: nil
   )
 
   @type t :: %__MODULE__{
     client_id: String.t,
     tenant_id: String.t,
-    cert_thumbprint: String.t,
-    private_key_pem: String.t
+    cert_base64_thumbprint: String.t,
+    cert_private_key_pem: String.t
   }
 
   @doc """
@@ -29,14 +29,19 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
       %ExAzureKeyVault.Auth{
         client_id: "6f185f82-9909...",
         tenant_id: "6f1861e4-9909...",
-        cert_thumbprint: "Dss7v2YI3GgCGflR888UpBd6A9c=",
-        private_key_pem: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF"
+        cert_base64_thumbprint: "Dss7v2YI3GgCGflR888UpBd6A9c=",
+        cert_private_key_pem: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF"
       }
 
   """
   @spec new(String.t, String.t, String.t, String.t) :: ClientAssertionAuth.t
-  def new(client_id, tenant_id, cert_thumbprint, private_key_pem) do
-    %ClientAssertionAuth{client_id: client_id, tenant_id: tenant_id, cert_thumbprint: cert_thumbprint, private_key_pem: private_key_pem}
+  def new(client_id, tenant_id, cert_base64_thumbprint, cert_private_key_pem) do
+    %ClientAssertionAuth{
+      client_id: client_id,
+      tenant_id: tenant_id,
+      cert_base64_thumbprint: cert_base64_thumbprint,
+      cert_private_key_pem: cert_private_key_pem
+    }
   end
 
   @doc """
@@ -51,7 +56,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
   """
   @spec get_client_assertion(ClientAssertionAuth.t) :: {:ok, String.t} | {:error, any}
   def get_client_assertion(%ClientAssertionAuth{} = params) do
-    signer = Joken.Signer.create("RS256", %{"pem" => params.private_key_pem}, %{"x5t" => params.cert_thumbprint})
+    signer = Joken.Signer.create("RS256", %{"pem" => params.cert_private_key_pem}, %{"x5t" => params.cert_base64_thumbprint})
     sub = params.client_id
     iss = params.client_id
     jti = Joken.generate_jti()
