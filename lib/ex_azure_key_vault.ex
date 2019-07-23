@@ -103,8 +103,8 @@ defmodule ExAzureKeyVault.Client do
     if is_empty(client_id), do: raise ArgumentError, message: "Client ID is not present"
     if is_empty(client_secret), do: raise ArgumentError, message: "Client secret is not present"
     with %Auth{} = auth <- Auth.new(client_id, client_secret, tenant_id),
-         {:ok, bearer_token} <- auth |> Auth.get_bearer_token,
-         %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
+        {:ok, bearer_token} <- auth |> Auth.get_bearer_token,
+        %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
       client
     else
       {:error, reason} -> {:error, reason}
@@ -195,9 +195,9 @@ defmodule ExAzureKeyVault.Client do
     options = HTTPUtils.options_ssl
     HTTPoison.get(url, headers, options)
     |> handle_http_response(url, fn body ->
-         response = Poison.decode!(body)
-         {:ok, response["value"]}
-       end)
+        response = Poison.decode!(body)
+        {:ok, response["value"]}
+      end)
   end
 
   @doc """
@@ -277,9 +277,9 @@ defmodule ExAzureKeyVault.Client do
     options = HTTPUtils.options_ssl
     HTTPoison.get(url, headers, options)
     |> handle_http_response(url, fn body ->
-         response = Poison.decode!(body)
-         {:ok, response}
-       end)
+        response = Poison.decode!(body)
+        {:ok, response}
+      end)
   end
 
   @doc """
@@ -319,9 +319,9 @@ defmodule ExAzureKeyVault.Client do
     options = HTTPUtils.options_ssl
     HTTPoison.get(next_link, headers, options)
     |> handle_http_response(next_link, fn body ->
-         response = Poison.decode!(body)
-         {:ok, response}
-       end)
+        response = Poison.decode!(body)
+        {:ok, response}
+      end)
   end
 
   @doc """
