@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.0
+
+  * Adding support for client assertion to connect to Azure (using Azure App Registration certificate).
+
 ## v0.2.3
 
   * Updating dependencies.

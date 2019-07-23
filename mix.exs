@@ -1,7 +1,7 @@
 defmodule ExAzureKeyVault.MixProject do
   use Mix.Project
 
-  @version "0.2.3"
+  @version "0.3.0"
   @github_url "https://github.com/RamonPage/ex_azure_key_vault"
 
   def project do
@@ -56,6 +56,8 @@ defmodule ExAzureKeyVault.MixProject do
     [
       {:httpoison, "~> 1.5.0"},
       {:poison, "~> 4.0.0"},
+      {:joken, "~> 2.1.0"},
+      {:jason, "~> 1.1.2"},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:ex_doc, "~> 0.21.0", only: :dev, runtime: false},
       {:mock, "~> 0.3.2", only: :test},
