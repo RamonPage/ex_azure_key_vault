@@ -21,7 +21,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
   }
 
   @doc """
-  Creates `%ExAzureKeyVault.ClientAssertionAuth{}` struct with account tokens.
+  Creates `%ExAzureKeyVault.ClientAssertionAuth{}` struct with account tokens and cert data.
 
   ## Examples
 
@@ -45,7 +45,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
   end
 
   @doc """
-  Returns bearer token for Azure connection.
+  Returns bearer token for Azure connection using client assertion.
 
   ## Examples
 
