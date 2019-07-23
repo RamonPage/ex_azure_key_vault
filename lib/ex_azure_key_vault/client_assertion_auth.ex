@@ -20,17 +20,17 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
     cert_private_key_pem: String.t
   }
 
-  @doc """
+  @doc ~S"""
   Creates `%ExAzureKeyVault.ClientAssertionAuth{}` struct with account tokens and cert data.
 
   ## Examples
 
-      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...", "Dss7v2YI3GgCGfl...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF")
-      %ExAzureKeyVault.Auth{
+      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...", "Dss7v2YI3GgCGfl...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF...")
+      %ExAzureKeyVault.ClientAssertionAuth{
         client_id: "6f185f82-9909...",
         tenant_id: "6f1861e4-9909...",
         cert_base64_thumbprint: "Dss7v2YI3GgCGfl...",
-        cert_private_key_pem: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF"
+        cert_private_key_pem: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF..."
       }
 
   """
@@ -44,12 +44,12 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
     }
   end
 
-  @doc """
+  @doc ~S"""
   Returns bearer token for Azure connection using client assertion.
 
   ## Examples
 
-      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...", "Dss7v2YI3GgCGfl...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF")
+      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...", "Dss7v2YI3GgCGfl...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF...")
       ...(1)> |> ExAzureKeyVault.ClientAssertionAuth.get_bearer_token()
       {:ok, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
 
