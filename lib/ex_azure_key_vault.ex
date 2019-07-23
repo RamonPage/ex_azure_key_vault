@@ -112,7 +112,7 @@ defmodule ExAzureKeyVault.Client do
   end
 
   @doc ~S"""
-  Connects to Azure Key Vault using client assertion with certificate.
+  Connects to Azure Key Vault using client assertion.
 
   ## Examples
 
