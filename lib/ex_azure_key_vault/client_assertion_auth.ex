@@ -45,42 +45,23 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
   end
 
   @doc """
-  Returns client assertion for Azure connection.
-
-  ## Examples
-
-      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...", "934367bf1c97033...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF")
-      ...(1)> |> ExAzureKeyVault.ClientAssertionAuth.get_client_assertion()
-      {:ok, "eyJ4NXQiOiIxMTEzIiwiYWxnIjoiUlM1MTI..."}
-
-  """
-  @spec get_client_assertion(ClientAssertionAuth.t) :: {:ok, String.t} | {:error, any}
-  def get_client_assertion(%ClientAssertionAuth{} = params) do
-    signer = Joken.Signer.create("RS256", %{"pem" => params.cert_private_key_pem}, %{"x5t" => params.cert_base64_thumbprint})
-    sub = params.client_id
-    iss = params.client_id
-    jti = Joken.generate_jti()
-    nbf = Joken.current_time()
-    exp = Joken.current_time() + 600 # 10 minutes
-    aud = "https://login.microsoftonline.com/#{params.tenant_id}/oauth2/v2.0/token"
-    {:ok, claims} = Joken.generate_claims(%{}, %{sub: sub, iss: iss, jti: jti, nbf: nbf, exp: exp, aud: aud})
-    {:ok, jwt, _} = Joken.encode_and_sign(claims, signer)
-    {:ok, jwt}
-  end
-
-  @doc """
   Returns bearer token for Azure connection.
 
   ## Examples
 
-      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...")
-      ...(1)> |> ExAzureKeyVault.ClientAssertionAuth.get_client_assertion()
+      iex(1)> ExAzureKeyVault.ClientAssertionAuth.new("6f185f82-9909...", "6f1861e4-9909...", "934367bf1c97033...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF")
       ...(1)> |> ExAzureKeyVault.ClientAssertionAuth.get_bearer_token()
       {:ok, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
 
   """
   @spec get_bearer_token(ClientAssertionAuth.t, String.t) :: {:ok, String.t} | {:error, any}
-  def get_bearer_token(%ClientAssertionAuth{} = params, client_assertion) do
+  def get_bearer_token(%ClientAssertionAuth{} = params) do
+    client_assertion = auth_client_assertion(
+      params.client_id,
+      params.tenant_id,
+      params.cert_base64_thumbprint,
+      params.cert_private_key_pem
+    )
     url = auth_url(params.tenant_id)
     body = auth_body(params.client_id, client_assertion)
     headers = HTTPUtils.headers_form_urlencoded
@@ -116,5 +97,19 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
       scope: "https://vault.azure.net/.default"
     ]}
+  end
+
+  @spec auth_client_assertion(String.t, String.t, String.t, String.t) :: String.t
+  defp auth_client_assertion(client_id, tenant_id, cert_base64_thumbprint, cert_private_key_pem) do
+    signer = Joken.Signer.create("RS256", %{"pem" => cert_private_key_pem}, %{"x5t" => cert_base64_thumbprint})
+    sub = client_id
+    iss = client_id
+    jti = Joken.generate_jti()
+    nbf = Joken.current_time()
+    exp = Joken.current_time() + 600 # 10 minutes
+    aud = "https://login.microsoftonline.com/#{tenant_id}/oauth2/v2.0/token"
+    {:ok, claims} = Joken.generate_claims(%{}, %{sub: sub, iss: iss, jti: jti, nbf: nbf, exp: exp, aud: aud})
+    {:ok, jwt, _} = Joken.encode_and_sign(claims, signer)
+    jwt
   end
 end
