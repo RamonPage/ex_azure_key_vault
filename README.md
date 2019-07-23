@@ -60,7 +60,7 @@ iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret
 :ok
 ```
 
-## Using client assertion to connect to Azure
+## Connecting with client assertion
 
 For additional security, `ex_azure_key_vault` accepts client assertion instead of a client secret. To do so, first you need to upload a certificate to your Azure App Registration. Then pass the certificate SHA-1 thumbprint in base64 format and the private key in PEM format to `ex_azure_key_vault`.
 
