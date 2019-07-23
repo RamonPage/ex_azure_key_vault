@@ -29,7 +29,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
       %ExAzureKeyVault.Auth{
         client_id: "6f185f82-9909...",
         tenant_id: "6f1861e4-9909...",
-        cert_thumbprint: "934367bf1c97033...",
+        cert_thumbprint: "Dss7v2YI3GgCGflR888UpBd6A9c=",
         private_key_pem: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF"
       }
 
@@ -57,7 +57,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
     jti = Joken.generate_jti()
     nbf = Joken.current_time()
     exp = Joken.current_time() + 600 # 10 minutes
-    aud = "https://login.windows.net/#{params.tenant_id}/oauth2/token"
+    aud = "https://login.microsoftonline.com/#{params.tenant_id}/oauth2/v2.0/token"
     {:ok, claims} = Joken.generate_claims(%{}, %{sub: sub, iss: iss, jti: jti, nbf: nbf, exp: exp, aud: aud})
     {:ok, jwt, _} = Joken.encode_and_sign(claims, signer)
     {:ok, jwt}
@@ -99,7 +99,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
 
   @spec auth_url(String.t) :: String.t
   defp auth_url(tenant_id) do
-    "https://login.windows.net/#{tenant_id}/oauth2/token"
+    "https://login.microsoftonline.com/#{tenant_id}/oauth2/v2.0/token"
   end
 
   @spec auth_body(String.t, String.t) :: tuple
@@ -109,7 +109,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
       client_id: client_id,
       client_assertion: client_assertion,
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-      resource: "https://vault.azure.net"
+      scope: "https://vault.azure.net/.default"
     ]}
   end
 end
