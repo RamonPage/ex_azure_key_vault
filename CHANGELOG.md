@@ -2,7 +2,7 @@
 
 ## v1.0.0
 
-  * Deprecating certConnect() in favor of cert_connect(), following Elixir naming convention.
+  * Deprecating `certConnect()` in favor of `cert_connect()`, following Elixir naming convention.
 
 ## v0.3.0
 
