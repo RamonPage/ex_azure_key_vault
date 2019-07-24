@@ -2,7 +2,7 @@ defmodule ExAzureKeyVault.ClientTest do
   use ExUnit.Case, async: false
   doctest ExAzureKeyVault.Client, except: [
     connect: 0, connect: 4,
-    certConnect: 0, certConnect: 5,
+    cert_connect: 0, cert_connect: 5,
     get_secret: 2, get_secret: 3,
     get_secrets: 1, get_secrets: 2,
     get_secrets_next: 2,
@@ -114,12 +114,12 @@ defmodule ExAzureKeyVault.ClientTest do
     end
   end
 
-  describe "certConnect() when application config is defined" do
+  describe "cert_connect() when application config is defined" do
     setup [:setup_application_config]
 
     test "connects to key vault without params", context do
       with_mock HTTPoison, [post: fn(_url, _body, _header, _options) -> response_200_token(context) end] do
-        result = ExAzureKeyVault.Client.certConnect()
+        result = ExAzureKeyVault.Client.cert_connect()
         assert_called HTTPoison.post(context[:certUrl], context[:certBody], context[:headers], context[:options])
         assert result == context[:client]
       end
@@ -127,7 +127,7 @@ defmodule ExAzureKeyVault.ClientTest do
 
     test "connects to key vault with custom params", context do
       with_mock HTTPoison, [post: fn(_url, _body, _header, _options) -> response_200_token(context) end] do
-        result = ExAzureKeyVault.Client.certConnect("another-vault")
+        result = ExAzureKeyVault.Client.cert_connect("another-vault")
         assert_called HTTPoison.post(context[:certUrl], context[:certBody], context[:headers], context[:options])
         assert result == context[:client_with_custom_params]
       end
@@ -170,12 +170,12 @@ defmodule ExAzureKeyVault.ClientTest do
     end
   end
 
-  describe "certConnect() when application config is not defined" do
+  describe "cert_connect() when application config is not defined" do
     setup [:clean_application_config]
 
     test "connects to key vault with params", context do
       with_mock HTTPoison, [post: fn(_url, _body, _header, _options) -> response_200_token(context) end] do
-        result = ExAzureKeyVault.Client.certConnect(@vault_name, @tenant_id, @client_id, @cert_base64_thumbprint, @cert_private_key_pem)
+        result = ExAzureKeyVault.Client.cert_connect(@vault_name, @tenant_id, @client_id, @cert_base64_thumbprint, @cert_private_key_pem)
         assert_called HTTPoison.post(context[:certUrl], context[:certBody], context[:headers], context[:options])
         assert result == context[:client]
       end
@@ -183,31 +183,31 @@ defmodule ExAzureKeyVault.ClientTest do
 
     test "raises ArgumentError when vault name is not present" do
       assert_raise ArgumentError, "Vault name is not present", fn ->
-        ExAzureKeyVault.Client.certConnect(nil, @tenant_id, @client_id, @cert_base64_thumbprint, @cert_private_key_pem)
+        ExAzureKeyVault.Client.cert_connect(nil, @tenant_id, @client_id, @cert_base64_thumbprint, @cert_private_key_pem)
       end
     end
 
     test "raises ArgumentError when tenant id is not present" do
       assert_raise ArgumentError, "Tenant ID is not present", fn ->
-        ExAzureKeyVault.Client.certConnect(@vault_name, nil, @client_id, @cert_base64_thumbprint, @cert_private_key_pem)
+        ExAzureKeyVault.Client.cert_connect(@vault_name, nil, @client_id, @cert_base64_thumbprint, @cert_private_key_pem)
       end
     end
 
     test "raises ArgumentError when client id is not present" do
       assert_raise ArgumentError, "Client ID is not present", fn ->
-        ExAzureKeyVault.Client.certConnect(@vault_name, @tenant_id, nil, @cert_base64_thumbprint, @cert_private_key_pem)
+        ExAzureKeyVault.Client.cert_connect(@vault_name, @tenant_id, nil, @cert_base64_thumbprint, @cert_private_key_pem)
       end
     end
 
     test "raises ArgumentError when certificate base64 thumbprint is not present" do
       assert_raise ArgumentError, "Certificate base64 thumbprint is not present", fn ->
-        ExAzureKeyVault.Client.certConnect(@vault_name, @tenant_id, @client_id, nil, @cert_private_key_pem)
+        ExAzureKeyVault.Client.cert_connect(@vault_name, @tenant_id, @client_id, nil, @cert_private_key_pem)
       end
     end
 
     test "raises ArgumentError when certificate private PEM is not present" do
       assert_raise ArgumentError, "Certificate private key PEM is not present", fn ->
-        ExAzureKeyVault.Client.certConnect(@vault_name, @tenant_id, @client_id, @cert_base64_thumbprint, nil)
+        ExAzureKeyVault.Client.cert_connect(@vault_name, @tenant_id, @client_id, @cert_base64_thumbprint, nil)
       end
     end
   end

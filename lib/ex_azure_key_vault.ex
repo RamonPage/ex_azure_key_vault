@@ -132,7 +132,7 @@ defmodule ExAzureKeyVault.Client do
         azure_cert_base64_thumbprint: {:system, "AZURE_CERT_BASE64_THUMBPRINT"},
         azure_cert_private_key_pem: {:system, "AZURE_CERT_PRIVATE_KEY_PEM"}
 
-      iex(1)> ExAzureKeyVault.Client.certConnect()
+      iex(1)> ExAzureKeyVault.Client.cert_connect()
       %ExAzureKeyVault.Client{
         api_version: "2016-10-01",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -141,7 +141,7 @@ defmodule ExAzureKeyVault.Client do
 
   Passing custom parameters.
 
-      iex(1)> ExAzureKeyVault.Client.certConnect("custom-vault", "14e7a376-9abf...", "14e79d90-9abf...", "Dss7v2YI3GgCGfl...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF...")
+      iex(1)> ExAzureKeyVault.Client.cert_connect("custom-vault", "14e7a376-9abf...", "14e79d90-9abf...", "Dss7v2YI3GgCGfl...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF...")
       %ExAzureKeyVault.Client{
         api_version: "2016-10-01",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -149,9 +149,9 @@ defmodule ExAzureKeyVault.Client do
       }
 
   """
-  @spec certConnect() :: Client.t | {:error, any}
-  @spec certConnect(String.t | nil, String.t | nil, String.t | nil, String.t | nil, String.t | nil) :: Client.t | {:error, any}
-  def certConnect(vault_name \\ nil, tenant_id \\ nil, client_id \\ nil, cert_base64_thumbprint \\ nil, cert_private_key_pem \\ nil) do
+  @spec cert_connect() :: Client.t | {:error, any}
+  @spec cert_connect(String.t | nil, String.t | nil, String.t | nil, String.t | nil, String.t | nil) :: Client.t | {:error, any}
+  def cert_connect(vault_name \\ nil, tenant_id \\ nil, client_id \\ nil, cert_base64_thumbprint \\ nil, cert_private_key_pem \\ nil) do
     vault_name = get_env(:azure_vault_name, vault_name)
     tenant_id = get_env(:azure_tenant_id, tenant_id)
     client_id = get_env(:azure_client_id, client_id)

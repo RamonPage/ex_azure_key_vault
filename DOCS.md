@@ -77,6 +77,6 @@ config :ex_azure_key_vault,
 
 ### Getting a secret
 ```elixir
-iex(1)> ExAzureKeyVault.Client.certConnect() |> ExAzureKeyVault.Client.get_secret("my-secret")
+iex(1)> ExAzureKeyVault.Client.cert_connect() |> ExAzureKeyVault.Client.get_secret("my-secret")
 {:ok, "my-value"}
 ```
