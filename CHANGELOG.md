@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.0
+
+  * Deprecating certConnect() in favor of cert_connect(), following Elixir naming convention.
+
 ## v0.3.0
 
   * Adding support for client assertion to connect to Azure (using Azure App Registration certificate).
