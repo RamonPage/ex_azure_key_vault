@@ -107,7 +107,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
     jti = Joken.generate_jti()
     nbf = Joken.current_time()
     exp = Joken.current_time() + 60 # in 1 minute
-    aud = "https://login.microsoftonline.com/#{tenant_id}/oauth2/v2.0/token"
+    aud = auth_url(tenant_id)
     {:ok, claims} = Joken.generate_claims(%{}, %{sub: sub, iss: iss, jti: jti, nbf: nbf, exp: exp, aud: aud})
     {:ok, jwt, _} = Joken.encode_and_sign(claims, signer)
     jwt
