@@ -54,7 +54,7 @@ defmodule ExAzureKeyVault.MixProject do
 
   defp deps do
     [
-      {:httpoison, "~> 1.5.0"},
+      {:httpoison, "~> 1.6.0"},
       {:poison, "~> 4.0.0"},
       {:joken, "~> 2.1.0"},
       {:jason, "~> 1.1.2"},
