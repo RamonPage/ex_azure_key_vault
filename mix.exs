@@ -61,7 +61,7 @@ defmodule ExAzureKeyVault.MixProject do
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:ex_doc, "~> 0.21.0", only: :dev, runtime: false},
       {:mock, "~> 0.3.2", only: :test},
-      {:excoveralls, "~> 0.11.1", only: :test}
+      {:excoveralls, "~> 0.12.0", only: :test}
     ]
   end
 
