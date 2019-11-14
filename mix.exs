@@ -56,7 +56,7 @@ defmodule ExAzureKeyVault.MixProject do
     [
       {:httpoison, "~> 1.6.0"},
       {:poison, "~> 4.0.0"},
-      {:joken, "~> 2.1.0"},
+      {:joken, "~> 2.2.0"},
       {:jason, "~> 1.1.2"},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:ex_doc, "~> 0.21.0", only: :dev, runtime: false},
