@@ -4,7 +4,7 @@ defmodule Mix.Tasks.Version do
   @impl Mix.Task
   def run(args) do
     version = Enum.at(args, 0)
-    description = Regex.replace(~r/\\n/, Enum.at(args, 1), "\n")
+    description = Enum.at(args, 1)
 
     Mix.shell().info("Updating DOCS...")
     {:ok, docs} = File.read("DOCS.md")
@@ -27,11 +27,14 @@ defmodule Mix.Tasks.Version do
 
     Mix.shell().info("")
 
-    Mix.shell().info("Updating CHANGELOG...")
-    {:ok, changelog} = File.read("CHANGELOG.md")
-    changelog = Regex.replace(~r/# Changelog\n/, changelog, "")
-    updated_changelog = "# Changelog\n\n## #{version}\n\n#{description}\n#{changelog}"
-    File.write("CHANGELOG.md", updated_changelog)
-    Mix.shell().info("CHANGELOG updated!")
+    if description do
+      Mix.shell().info("Updating CHANGELOG...")
+      {:ok, changelog} = File.read("CHANGELOG.md")
+      changelog = Regex.replace(~r/# Changelog\n/, changelog, "")
+      description = Regex.replace(~r/\\n/, description, "\n")
+      updated_changelog = "# Changelog\n\n## #{version}\n\n#{description}\n#{changelog}"
+      File.write("CHANGELOG.md", updated_changelog)
+      Mix.shell().info("CHANGELOG updated!")
+    end
   end
 end
