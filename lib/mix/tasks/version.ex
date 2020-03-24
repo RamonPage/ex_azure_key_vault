@@ -32,7 +32,7 @@ defmodule Mix.Tasks.Version do
       {:ok, changelog} = File.read("CHANGELOG.md")
       changelog = Regex.replace(~r/# Changelog\n/, changelog, "")
       description = Regex.replace(~r/\\n/, description, "\n")
-      updated_changelog = "# Changelog\n\n## #{version}\n\n#{description}\n#{changelog}"
+      updated_changelog = "# Changelog\n\n## v#{version}\n\n#{description}\n#{changelog}"
       File.write("CHANGELOG.md", updated_changelog)
       Mix.shell().info("CHANGELOG updated!")
     end
