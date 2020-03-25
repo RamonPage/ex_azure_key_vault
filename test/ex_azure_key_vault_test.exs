@@ -303,6 +303,32 @@ defmodule ExAzureKeyVault.ClientTest do
         )
       end
     end
+
+    test "raises ArgumentError when multiple parameters are missing" do
+      assert_raise ArgumentError, "Client ID is not present", fn ->
+        ExAzureKeyVault.Client.cert_connect(
+          @vault_name,
+          @tenant_id
+        )
+      end
+
+      assert_raise ArgumentError, "Certificate base64 thumbprint is not present", fn ->
+        ExAzureKeyVault.Client.cert_connect(
+          @vault_name,
+          @tenant_id,
+          @client_id
+        )
+      end
+
+      assert_raise ArgumentError, "Certificate private key PEM is not present", fn ->
+        ExAzureKeyVault.Client.cert_connect(
+          @vault_name,
+          @tenant_id,
+          @client_id,
+          @cert_base64_thumbprint
+        )
+      end
+    end
   end
 
   describe "when environment variables are defined" do
