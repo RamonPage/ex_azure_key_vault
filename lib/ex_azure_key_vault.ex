@@ -17,10 +17,10 @@ defmodule ExAzureKeyVault.Client do
   )
 
   @type t :: %__MODULE__{
-    api_version: String.t,
-    bearer_token: String.t,
-    vault_name: String.t
-  }
+          api_version: String.t(),
+          bearer_token: String.t(),
+          vault_name: String.t()
+        }
 
   @doc """
   Creates `%ExAzureKeyVault.Client{}` struct with connection information.
@@ -46,7 +46,7 @@ defmodule ExAzureKeyVault.Client do
       }
 
   """
-  @spec new(String.t, String.t, String.t | nil) :: Client.t
+  @spec new(String.t(), String.t(), String.t() | nil) :: Client.t()
   def new(bearer_token, vault_name, api_version \\ nil) do
     %Client{
       api_version: api_version || APIVersion.version(),
@@ -91,20 +91,22 @@ defmodule ExAzureKeyVault.Client do
       }
 
   """
-  @spec connect() :: Client.t | {:error, any}
-  @spec connect(String.t | nil, String.t | nil, String.t | nil, String.t | nil) :: Client.t | {:error, any}
+  @spec connect() :: Client.t() | {:error, any}
+  @spec connect(String.t() | nil, String.t() | nil, String.t() | nil, String.t() | nil) ::
+          Client.t() | {:error, any}
   def connect(vault_name \\ nil, tenant_id \\ nil, client_id \\ nil, client_secret \\ nil) do
     vault_name = get_env(:azure_vault_name, vault_name)
     tenant_id = get_env(:azure_tenant_id, tenant_id)
     client_id = get_env(:azure_client_id, client_id)
     client_secret = get_env(:azure_client_secret, client_secret)
-    if is_empty(vault_name), do: raise ArgumentError, message: "Vault name is not present"
-    if is_empty(tenant_id), do: raise ArgumentError, message: "Tenant ID is not present"
-    if is_empty(client_id), do: raise ArgumentError, message: "Client ID is not present"
-    if is_empty(client_secret), do: raise ArgumentError, message: "Client secret is not present"
+    if is_empty(vault_name), do: raise(ArgumentError, message: "Vault name is not present")
+    if is_empty(tenant_id), do: raise(ArgumentError, message: "Tenant ID is not present")
+    if is_empty(client_id), do: raise(ArgumentError, message: "Client ID is not present")
+    if is_empty(client_secret), do: raise(ArgumentError, message: "Client secret is not present")
+
     with %Auth{} = auth <- Auth.new(client_id, client_secret, tenant_id),
-        {:ok, bearer_token} <- auth |> Auth.get_bearer_token,
-        %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
+         {:ok, bearer_token} <- auth |> Auth.get_bearer_token(),
+         %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
       client
     else
       {:error, reason} -> {:error, reason}
@@ -149,23 +151,46 @@ defmodule ExAzureKeyVault.Client do
       }
 
   """
-  @spec cert_connect() :: Client.t | {:error, any}
-  @spec cert_connect(String.t | nil, String.t | nil, String.t | nil, String.t | nil, String.t | nil) :: Client.t | {:error, any}
-  def cert_connect(vault_name \\ nil, tenant_id \\ nil, client_id \\ nil, cert_base64_thumbprint \\ nil, cert_private_key_pem \\ nil) do
+  @spec cert_connect() :: Client.t() | {:error, any}
+  @spec cert_connect(
+          String.t() | nil,
+          String.t() | nil,
+          String.t() | nil,
+          String.t() | nil,
+          String.t() | nil
+        ) :: Client.t() | {:error, any}
+  def cert_connect(
+        vault_name \\ nil,
+        tenant_id \\ nil,
+        client_id \\ nil,
+        cert_base64_thumbprint \\ nil,
+        cert_private_key_pem \\ nil
+      ) do
     vault_name = get_env(:azure_vault_name, vault_name)
     tenant_id = get_env(:azure_tenant_id, tenant_id)
     client_id = get_env(:azure_client_id, client_id)
     cert_base64_thumbprint = get_env(:azure_cert_base64_thumbprint, cert_base64_thumbprint)
     cert_private_key_pem = get_env(:azure_cert_private_key_pem, cert_private_key_pem)
-    if is_empty(vault_name), do: raise ArgumentError, message: "Vault name is not present"
-    if is_empty(tenant_id), do: raise ArgumentError, message: "Tenant ID is not present"
-    if is_empty(client_id), do: raise ArgumentError, message: "Client ID is not present"
-    if is_empty(cert_base64_thumbprint), do: raise ArgumentError, message: "Certificate base64 thumbprint is not present"
-    if is_empty(cert_private_key_pem), do: raise ArgumentError, message: "Certificate private key PEM is not present"
+    if is_empty(vault_name), do: raise(ArgumentError, message: "Vault name is not present")
+    if is_empty(tenant_id), do: raise(ArgumentError, message: "Tenant ID is not present")
+    if is_empty(client_id), do: raise(ArgumentError, message: "Client ID is not present")
+
+    if is_empty(cert_base64_thumbprint),
+      do: raise(ArgumentError, message: "Certificate base64 thumbprint is not present")
+
+    if is_empty(cert_private_key_pem),
+      do: raise(ArgumentError, message: "Certificate private key PEM is not present")
+
     with cert_private_key_pem <- cert_private_key_pem |> String.replace("\\n", "\n"),
-        %ClientAssertionAuth{} = auth <- ClientAssertionAuth.new(client_id, tenant_id, cert_base64_thumbprint, cert_private_key_pem),
-        {:ok, bearer_token} <- auth |> ClientAssertionAuth.get_bearer_token,
-        %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
+         %ClientAssertionAuth{} = auth <-
+           ClientAssertionAuth.new(
+             client_id,
+             tenant_id,
+             cert_base64_thumbprint,
+             cert_private_key_pem
+           ),
+         {:ok, bearer_token} <- auth |> ClientAssertionAuth.get_bearer_token(),
+         %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
       client
     else
       {:error, reason} -> {:error, reason}
@@ -188,16 +213,19 @@ defmodule ExAzureKeyVault.Client do
       {:ok, "my-other-value"}
 
   """
-  @spec get_secret(Client.t, String.t, String.t | nil) :: {:ok, String.t} | {:error, any}
+  @spec get_secret(Client.t(), String.t(), String.t() | nil) :: {:ok, String.t()} | {:error, any}
   def get_secret(%Client{} = params, secret_name, secret_version \\ nil) do
-    url = Url.new(secret_name, params.vault_name) |> Url.get_url(secret_version, params.api_version)
+    url =
+      Url.new(secret_name, params.vault_name) |> Url.get_url(secret_version, params.api_version)
+
     headers = HTTPUtils.headers_authorization(params.bearer_token)
-    options = HTTPUtils.options_ssl
+    options = HTTPUtils.options_ssl()
+
     HTTPoison.get(url, headers, options)
     |> handle_http_response(url, fn body ->
-        response = Poison.decode!(body)
-        {:ok, response["value"]}
-      end)
+      response = Poison.decode!(body)
+      {:ok, response["value"]}
+    end)
   end
 
   @doc """
@@ -270,16 +298,17 @@ defmodule ExAzureKeyVault.Client do
           ]
         }}
   """
-  @spec get_secrets(Client.t, integer | nil) :: {:ok, String.t} | {:error, any}
+  @spec get_secrets(Client.t(), integer | nil) :: {:ok, String.t()} | {:error, any}
   def get_secrets(%Client{} = params, max_results \\ nil) do
     url = Url.new(nil, params.vault_name) |> Url.get_secrets_url(max_results, params.api_version)
     headers = HTTPUtils.headers_authorization(params.bearer_token)
-    options = HTTPUtils.options_ssl
+    options = HTTPUtils.options_ssl()
+
     HTTPoison.get(url, headers, options)
     |> handle_http_response(url, fn body ->
-        response = Poison.decode!(body)
-        {:ok, response}
-      end)
+      response = Poison.decode!(body)
+      {:ok, response}
+    end)
   end
 
   @doc """
@@ -308,20 +337,23 @@ defmodule ExAzureKeyVault.Client do
           ]
         }}
   """
-  @spec get_secrets_next(Client.t, String.t) :: {:ok, String.t} | {:error, any}
+  @spec get_secrets_next(Client.t(), String.t()) :: {:ok, String.t()} | {:error, any}
   def get_secrets_next(%Client{} = params, next_link) do
-    if is_empty(next_link), do: raise ArgumentError, message: "Next link is not present"
+    if is_empty(next_link), do: raise(ArgumentError, message: "Next link is not present")
+
     unless next_link
-      |> String.starts_with?("https://#{params.vault_name}.vault.azure.net") do
+           |> String.starts_with?("https://#{params.vault_name}.vault.azure.net") do
       raise ArgumentError, message: "Next link #{next_link} is not valid"
     end
+
     headers = HTTPUtils.headers_authorization(params.bearer_token)
-    options = HTTPUtils.options_ssl
+    options = HTTPUtils.options_ssl()
+
     HTTPoison.get(next_link, headers, options)
     |> handle_http_response(next_link, fn body ->
-        response = Poison.decode!(body)
-        {:ok, response}
-      end)
+      response = Poison.decode!(body)
+      {:ok, response}
+    end)
   end
 
   @doc """
@@ -333,12 +365,12 @@ defmodule ExAzureKeyVault.Client do
       :ok
 
   """
-  @spec create_secret(Client.t, String.t, String.t) :: :ok | {:error, any}
+  @spec create_secret(Client.t(), String.t(), String.t()) :: :ok | {:error, any}
   def create_secret(%Client{} = params, secret_name, secret_value) do
     url = Url.new(secret_name, params.vault_name) |> Url.get_url(params.api_version)
     body = Url.get_body(secret_value)
     headers = HTTPUtils.headers_authorization(params.bearer_token)
-    options = HTTPUtils.options_ssl
+    options = HTTPUtils.options_ssl()
     HTTPoison.put(url, body, headers, options) |> handle_http_response(url)
   end
 
@@ -351,28 +383,28 @@ defmodule ExAzureKeyVault.Client do
       :ok
 
   """
-  @spec delete_secret(Client.t, String.t) :: :ok | {:error, any}
+  @spec delete_secret(Client.t(), String.t()) :: :ok | {:error, any}
   def delete_secret(%Client{} = params, secret_name) do
     url = Url.new(secret_name, params.vault_name) |> Url.get_url(params.api_version)
     headers = HTTPUtils.headers_authorization(params.bearer_token)
-    options = HTTPUtils.options_ssl
+    options = HTTPUtils.options_ssl()
     HTTPoison.delete(url, headers, options) |> handle_http_response(url)
   end
 
-  @spec get_env(atom, String.t | nil) :: String.t
+  @spec get_env(atom, String.t() | nil) :: String.t()
   defp get_env(key, default) do
     default || Application.get_env(:ex_azure_key_vault, key) |> return_value()
   end
 
-  @spec return_value(tuple) :: String.t
+  @spec return_value(tuple) :: String.t()
   defp return_value({:system, key}) when is_binary(key) do
     System.get_env(key)
   end
 
-  @spec return_value(String.t) :: String.t
+  @spec return_value(String.t()) :: String.t()
   defp return_value(value), do: value
 
-  @spec is_empty(String.t | nil) :: boolean
+  @spec is_empty(String.t() | nil) :: boolean
   defp is_empty(string) do
     is_nil(string) || String.trim(string) == ""
   end
@@ -381,14 +413,19 @@ defmodule ExAzureKeyVault.Client do
     case http_response do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         callback_fun.(body)
+
       {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
         HTTPUtils.response_client_error_or_ok(status, request_url)
+
       {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
         HTTPUtils.response_client_error_or_ok(status, request_url, body)
+
       {:error, %HTTPoison.Error{reason: :nxdomain}} ->
         HTTPUtils.response_server_error(:nxdomain, request_url)
+
       {:error, %HTTPoison.Error{reason: reason}} ->
         HTTPUtils.response_server_error(reason)
+
       _ ->
         {:error, "Something went wrong"}
     end

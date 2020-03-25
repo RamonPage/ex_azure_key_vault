@@ -8,14 +8,32 @@ defmodule Mix.Tasks.Version do
 
     Mix.shell().info("Updating DOCS...")
     {:ok, docs} = File.read("DOCS.md")
-    File.write("DOCS.md", Regex.replace(~r/{:ex_azure_key_vault, "~> (.*)"}/, docs, "{:ex_azure_key_vault, \"~> #{version}\"}"))
+
+    File.write(
+      "DOCS.md",
+      Regex.replace(
+        ~r/{:ex_azure_key_vault, "~> (.*)"}/,
+        docs,
+        "{:ex_azure_key_vault, \"~> #{version}\"}"
+      )
+    )
+
     Mix.shell().info("DOCS updated!")
 
     Mix.shell().info("")
 
     Mix.shell().info("Updating README...")
     {:ok, readme} = File.read("README.md")
-    File.write("README.md", Regex.replace(~r/{:ex_azure_key_vault, "~> (.*)"}/, readme, "{:ex_azure_key_vault, \"~> #{version}\"}"))
+
+    File.write(
+      "README.md",
+      Regex.replace(
+        ~r/{:ex_azure_key_vault, "~> (.*)"}/,
+        readme,
+        "{:ex_azure_key_vault, \"~> #{version}\"}"
+      )
+    )
+
     Mix.shell().info("README updated!")
 
     Mix.shell().info("")

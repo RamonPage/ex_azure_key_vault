@@ -12,7 +12,7 @@ defmodule ExAzureKeyVault.APIVersion do
       "2016-10-01"
 
   """
-  @spec version :: String.t
+  @spec version :: String.t()
   def version do
     "2016-10-01"
   end

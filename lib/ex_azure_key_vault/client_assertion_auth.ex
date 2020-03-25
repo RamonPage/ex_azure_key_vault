@@ -14,11 +14,11 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
   )
 
   @type t :: %__MODULE__{
-    client_id: String.t,
-    tenant_id: String.t,
-    cert_base64_thumbprint: String.t,
-    cert_private_key_pem: String.t
-  }
+          client_id: String.t(),
+          tenant_id: String.t(),
+          cert_base64_thumbprint: String.t(),
+          cert_private_key_pem: String.t()
+        }
 
   @doc ~S"""
   Creates `%ExAzureKeyVault.ClientAssertionAuth{}` struct with account tokens and cert data.
@@ -34,7 +34,7 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
       }
 
   """
-  @spec new(String.t, String.t, String.t, String.t) :: ClientAssertionAuth.t
+  @spec new(String.t(), String.t(), String.t(), String.t()) :: ClientAssertionAuth.t()
   def new(client_id, tenant_id, cert_base64_thumbprint, cert_private_key_pem) do
     %ClientAssertionAuth{
       client_id: client_id,
@@ -54,61 +54,78 @@ defmodule ExAzureKeyVault.ClientAssertionAuth do
       {:ok, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
 
   """
-  @spec get_bearer_token(ClientAssertionAuth.t) :: {:ok, String.t} | {:error, any}
+  @spec get_bearer_token(ClientAssertionAuth.t()) :: {:ok, String.t()} | {:error, any}
   def get_bearer_token(%ClientAssertionAuth{} = params) do
-    client_assertion = auth_client_assertion(
-      params.client_id,
-      params.tenant_id,
-      params.cert_base64_thumbprint,
-      params.cert_private_key_pem
-    )
+    client_assertion =
+      auth_client_assertion(
+        params.client_id,
+        params.tenant_id,
+        params.cert_base64_thumbprint,
+        params.cert_private_key_pem
+      )
+
     url = auth_url(params.tenant_id)
     body = auth_body(params.client_id, client_assertion)
-    headers = HTTPUtils.headers_form_urlencoded
-    options = HTTPUtils.options_ssl
+    headers = HTTPUtils.headers_form_urlencoded()
+    options = HTTPUtils.options_ssl()
+
     case HTTPoison.post(url, body, headers, options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
         {:ok, "Bearer #{response["access_token"]}"}
+
       {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
         HTTPUtils.response_client_error_or_ok(status, url)
+
       {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
         HTTPUtils.response_client_error_or_ok(status, url, body)
+
       {:error, %HTTPoison.Error{reason: :nxdomain}} ->
         HTTPUtils.response_server_error(:nxdomain, url)
+
       {:error, %HTTPoison.Error{reason: reason}} ->
         HTTPUtils.response_server_error(reason)
+
       _ ->
         {:error, "Something went wrong"}
     end
   end
 
-  @spec auth_url(String.t) :: String.t
+  @spec auth_url(String.t()) :: String.t()
   defp auth_url(tenant_id) do
     "https://login.microsoftonline.com/#{tenant_id}/oauth2/v2.0/token"
   end
 
-  @spec auth_body(String.t, String.t) :: tuple
+  @spec auth_body(String.t(), String.t()) :: tuple
   defp auth_body(client_id, client_assertion) do
-    {:form, [
-      grant_type: "client_credentials",
-      client_id: client_id,
-      client_assertion: client_assertion,
-      client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-      scope: "https://vault.azure.net/.default"
-    ]}
+    {:form,
+     [
+       grant_type: "client_credentials",
+       client_id: client_id,
+       client_assertion: client_assertion,
+       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       scope: "https://vault.azure.net/.default"
+     ]}
   end
 
-  @spec auth_client_assertion(String.t, String.t, String.t, String.t) :: String.t
+  @spec auth_client_assertion(String.t(), String.t(), String.t(), String.t()) :: String.t()
   defp auth_client_assertion(client_id, tenant_id, cert_base64_thumbprint, cert_private_key_pem) do
-    signer = Joken.Signer.create("RS256", %{"pem" => cert_private_key_pem}, %{"x5t" => cert_base64_thumbprint})
+    signer =
+      Joken.Signer.create("RS256", %{"pem" => cert_private_key_pem}, %{
+        "x5t" => cert_base64_thumbprint
+      })
+
     sub = client_id
     iss = client_id
     jti = Joken.generate_jti()
     nbf = Joken.current_time()
-    exp = Joken.current_time() + 60 # in 1 minute
+    # in 1 minute
+    exp = Joken.current_time() + 60
     aud = auth_url(tenant_id)
-    {:ok, claims} = Joken.generate_claims(%{}, %{sub: sub, iss: iss, jti: jti, nbf: nbf, exp: exp, aud: aud})
+
+    {:ok, claims} =
+      Joken.generate_claims(%{}, %{sub: sub, iss: iss, jti: jti, nbf: nbf, exp: exp, aud: aud})
+
     {:ok, jwt, _} = Joken.encode_and_sign(claims, signer)
     jwt
   end

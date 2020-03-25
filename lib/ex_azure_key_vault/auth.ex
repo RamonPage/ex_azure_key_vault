@@ -13,10 +13,10 @@ defmodule ExAzureKeyVault.Auth do
   )
 
   @type t :: %__MODULE__{
-    client_id: String.t,
-    client_secret: String.t,
-    tenant_id: String.t
-  }
+          client_id: String.t(),
+          client_secret: String.t(),
+          tenant_id: String.t()
+        }
 
   @doc """
   Creates `%ExAzureKeyVault.Auth{}` struct with account tokens.
@@ -31,7 +31,7 @@ defmodule ExAzureKeyVault.Auth do
       }
 
   """
-  @spec new(String.t, String.t, String.t) :: Auth.t
+  @spec new(String.t(), String.t(), String.t()) :: Auth.t()
   def new(client_id, client_secret, tenant_id) do
     %Auth{client_id: client_id, client_secret: client_secret, tenant_id: tenant_id}
   end
@@ -46,36 +46,48 @@ defmodule ExAzureKeyVault.Auth do
       {:ok, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
 
   """
-  @spec get_bearer_token(Auth.t) :: {:ok, String.t} | {:error, any}
+  @spec get_bearer_token(Auth.t()) :: {:ok, String.t()} | {:error, any}
   def get_bearer_token(%Auth{} = params) do
     url = auth_url(params.tenant_id)
     body = auth_body(params.client_id, params.client_secret)
-    headers = HTTPUtils.headers_form_urlencoded
-    options = HTTPUtils.options_ssl
+    headers = HTTPUtils.headers_form_urlencoded()
+    options = HTTPUtils.options_ssl()
+
     case HTTPoison.post(url, body, headers, options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         response = Poison.decode!(body)
         {:ok, "Bearer #{response["access_token"]}"}
+
       {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
         HTTPUtils.response_client_error_or_ok(status, url)
+
       {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
         HTTPUtils.response_client_error_or_ok(status, url, body)
+
       {:error, %HTTPoison.Error{reason: :nxdomain}} ->
         HTTPUtils.response_server_error(:nxdomain, url)
+
       {:error, %HTTPoison.Error{reason: reason}} ->
         HTTPUtils.response_server_error(reason)
+
       _ ->
         {:error, "Something went wrong"}
     end
   end
 
-  @spec auth_url(String.t) :: String.t
+  @spec auth_url(String.t()) :: String.t()
   defp auth_url(tenant_id) do
     "https://login.windows.net/#{tenant_id}/oauth2/token"
   end
 
-  @spec auth_body(String.t, String.t) :: tuple
+  @spec auth_body(String.t(), String.t()) :: tuple
   defp auth_body(client_id, client_secret) do
-    {:form, [grant_type: "client_credentials", client_id: client_id, client_secret: client_secret, resource: "https://vault.azure.net"]}
+    {:form,
+     [
+       grant_type: "client_credentials",
+       client_id: client_id,
+       client_secret: client_secret,
+       resource: "https://vault.azure.net"
+     ]}
   end
 end

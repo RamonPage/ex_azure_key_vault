@@ -26,9 +26,9 @@ defmodule ExAzureKeyVault.HTTPUtils do
       ["Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "Content-Type": "application/json; charset=utf-8"]
 
   """
-  @spec headers_authorization(String.t) :: list
+  @spec headers_authorization(String.t()) :: list
   def headers_authorization(bearer_token) do
-    ["Authorization": bearer_token, "Content-Type": "application/json; charset=utf-8"]
+    [Authorization: bearer_token, "Content-Type": "application/json; charset=utf-8"]
   end
 
   @doc """
@@ -42,7 +42,7 @@ defmodule ExAzureKeyVault.HTTPUtils do
   """
   @spec options_ssl :: list
   def options_ssl do
-    [ssl: [{:versions, [:'tlsv1.2']}]]
+    [ssl: [{:versions, [:"tlsv1.2"]}]]
   end
 
   @doc """
@@ -54,7 +54,7 @@ defmodule ExAzureKeyVault.HTTPUtils do
       {:ok, %{}}
 
   """
-  @spec response_ok(String.t) :: {:ok, any}
+  @spec response_ok(String.t()) :: {:ok, any}
   def response_ok(body) do
     response = Poison.decode!(body)
     {:ok, response}
@@ -69,7 +69,7 @@ defmodule ExAzureKeyVault.HTTPUtils do
       {:error, "Error: 401: https://wrong-vault.vault.azure.net/secrets"}
 
   """
-  @spec response_client_error(integer, String.t) :: {:error, String.t} | nil
+  @spec response_client_error(integer, String.t()) :: {:error, String.t()} | nil
   def response_client_error(status, url) do
     if is_client_error(status) do
       {:error, "Error: #{status}: #{url}"}
@@ -85,7 +85,7 @@ defmodule ExAzureKeyVault.HTTPUtils do
       {:error, %{"error_message" => "Not found"}}
 
   """
-  @spec response_client_error(integer, String.t, String.t) :: {:error, any} | nil
+  @spec response_client_error(integer, String.t(), String.t()) :: {:error, any} | nil
   def response_client_error(status, _url, body) do
     if is_client_error(status) do
       response = Poison.decode!(body)
@@ -109,7 +109,7 @@ defmodule ExAzureKeyVault.HTTPUtils do
       :ok
 
   """
-  @spec response_client_error_or_ok(integer, String.t) :: {:error, String.t} | :ok
+  @spec response_client_error_or_ok(integer, String.t()) :: {:error, String.t()} | :ok
   def response_client_error_or_ok(status, url) do
     response_client_error(status, url) || :ok
   end
@@ -130,7 +130,8 @@ defmodule ExAzureKeyVault.HTTPUtils do
       {:ok, %{}}
 
   """
-  @spec response_client_error_or_ok(integer, String.t, String.t) :: {:error, String.t} | {:ok, String.t}
+  @spec response_client_error_or_ok(integer, String.t(), String.t()) ::
+          {:error, String.t()} | {:ok, String.t()}
   def response_client_error_or_ok(status, url, body) do
     response_client_error(status, url, body) || response_ok(body)
   end
@@ -144,7 +145,7 @@ defmodule ExAzureKeyVault.HTTPUtils do
       {:error, "Error: Couldn't resolve host name https://wrong-vault.vault.azure.net/secrets"}
 
   """
-  @spec response_server_error(atom, String.t) :: {:error, String.t}
+  @spec response_server_error(atom, String.t()) :: {:error, String.t()}
   def response_server_error(:nxdomain, url) do
     {:error, "Error: Couldn't resolve host name #{url}"}
   end
