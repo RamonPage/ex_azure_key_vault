@@ -78,6 +78,6 @@ defmodule ExAzureKeyVault.MixProject do
     ]
   end
 
-  defp elixirc_paths(:dev), do: ["lib", "build"]
+  defp elixirc_paths(:build), do: ["lib", "build"]
   defp elixirc_paths(_), do: ["lib"]
 end
