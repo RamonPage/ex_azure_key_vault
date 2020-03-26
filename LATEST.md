@@ -1,4 +1,6 @@
-# v1.0.2
+# Latest release
+
+## v1.0.2
 
 Updating dependencies.
 
