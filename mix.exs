@@ -25,7 +25,7 @@ defmodule ExAzureKeyVault.MixProject do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
-      elixirc_paths: elixirc_paths(Mix.env)
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
 
@@ -79,5 +79,5 @@ defmodule ExAzureKeyVault.MixProject do
   end
 
   defp elixirc_paths(:dev), do: ["lib", "build"]
-  defp elixirc_paths(_),    do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 end
