@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.0
+
+Removing `poison` dependency. Using `jason` instead.
+
 ## v1.0.2
 
 Updating dependencies.

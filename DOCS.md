@@ -10,7 +10,7 @@ by adding `ex_azure_key_vault` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ex_azure_key_vault, "~> 1.0.2"}
+    {:ex_azure_key_vault, "~> 2.0.0"}
   ]
 end
 ```
