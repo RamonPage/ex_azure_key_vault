@@ -96,7 +96,7 @@ defmodule ExAzureKeyVault.Url do
   """
   @spec get_body(String.t()) :: String.t()
   def get_body(secret_value) do
-    Poison.encode!(%{value: secret_value})
+    Jason.encode!(%{value: secret_value})
   end
 
   @spec base_secret_url(String.t(), String.t()) :: String.t()

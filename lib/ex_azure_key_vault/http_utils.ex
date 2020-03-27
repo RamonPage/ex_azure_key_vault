@@ -56,7 +56,7 @@ defmodule ExAzureKeyVault.HTTPUtils do
   """
   @spec response_ok(String.t()) :: {:ok, any}
   def response_ok(body) do
-    response = Poison.decode!(body)
+    response = Jason.decode!(body)
     {:ok, response}
   end
 
@@ -88,7 +88,7 @@ defmodule ExAzureKeyVault.HTTPUtils do
   @spec response_client_error(integer, String.t(), String.t()) :: {:error, any} | nil
   def response_client_error(status, _url, body) do
     if is_client_error(status) do
-      response = Poison.decode!(body)
+      response = Jason.decode!(body)
       {:error, response}
     end
   end

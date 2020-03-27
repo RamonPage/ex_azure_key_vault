@@ -223,7 +223,7 @@ defmodule ExAzureKeyVault.Client do
 
     HTTPoison.get(url, headers, options)
     |> handle_http_response(url, fn body ->
-      response = Poison.decode!(body)
+      response = Jason.decode!(body)
       {:ok, response["value"]}
     end)
   end
@@ -306,7 +306,7 @@ defmodule ExAzureKeyVault.Client do
 
     HTTPoison.get(url, headers, options)
     |> handle_http_response(url, fn body ->
-      response = Poison.decode!(body)
+      response = Jason.decode!(body)
       {:ok, response}
     end)
   end
@@ -351,7 +351,7 @@ defmodule ExAzureKeyVault.Client do
 
     HTTPoison.get(next_link, headers, options)
     |> handle_http_response(next_link, fn body ->
-      response = Poison.decode!(body)
+      response = Jason.decode!(body)
       {:ok, response}
     end)
   end

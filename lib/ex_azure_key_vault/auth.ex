@@ -55,7 +55,7 @@ defmodule ExAzureKeyVault.Auth do
 
     case HTTPoison.post(url, body, headers, options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        response = Poison.decode!(body)
+        response = Jason.decode!(body)
         {:ok, "Bearer #{response["access_token"]}"}
 
       {:ok, %HTTPoison.Response{status_code: status, body: ""}} ->
