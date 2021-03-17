@@ -1,0 +1,30 @@
+name: Version bump
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'LATEST.md'
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      MIX_ENV: build
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup elixir
+      uses: erlef/setup-elixir@v1
+      with:
+        elixir-version: 1.9.4
+        otp-version: 22.2
+    - name: Install dependencies
+      run: mix deps.get
+    - name: Run version bump
+      run: mix version
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
+
