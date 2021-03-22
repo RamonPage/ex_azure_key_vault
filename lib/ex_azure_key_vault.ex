@@ -89,17 +89,13 @@ defmodule ExAzureKeyVault.Client do
   @spec smart_connect() :: Client.t() | {:error, any}
   @spec smart_connect(String.t() | nil) :: Client.t() | {:error, any}
   def smart_connect(vault_name \\ nil) do
-
     with {:error, error1} <- msi_connect!(vault_name),
          {:error, error2} <- connect!(vault_name),
-         {:error, error3} <- cert_connect!(vault_name)
-    do
+         {:error, error3} <- cert_connect!(vault_name) do
       {:error, "#{error1},#{error2},#{error3}"}
     else
       client -> client
     end
-
-
   end
 
   @doc """
@@ -142,11 +138,11 @@ defmodule ExAzureKeyVault.Client do
       e in ArgumentError -> {:error, e}
     end
   end
+
   @spec msi_connect() :: Client.t() | {:error, any}
   @spec msi_connect(String.t() | nil) ::
           Client.t() | {:error, any}
   def msi_connect(vault_name \\ nil) do
-
     vault_name = get_env(:azure_vault_name, vault_name)
     endpoint = System.get_env("IDENTITY_ENDPOINT")
     header = System.get_env("IDENTITY_HEADER")
@@ -203,18 +199,16 @@ defmodule ExAzureKeyVault.Client do
           Client.t() | {:error, any}
   def connect!(vault_name \\ nil, tenant_id \\ nil, client_id \\ nil, client_secret \\ nil) do
     try do
-      connect(vault_name,tenant_id,client_id,client_secret)
+      connect(vault_name, tenant_id, client_id, client_secret)
     rescue
       e in ArgumentError -> {:error, e}
     end
-
   end
+
   @spec connect() :: Client.t() | {:error, any}
   @spec connect(String.t() | nil, String.t() | nil, String.t() | nil, String.t() | nil) ::
           Client.t() | {:error, any}
   def connect(vault_name \\ nil, tenant_id \\ nil, client_id \\ nil, client_secret \\ nil) do
-
-
     vault_name = get_env(:azure_vault_name, vault_name)
     tenant_id = get_env(:azure_tenant_id, tenant_id)
     client_id = get_env(:azure_client_id, client_id)
@@ -287,11 +281,10 @@ defmodule ExAzureKeyVault.Client do
         cert_private_key_pem \\ nil
       ) do
     try do
-      cert_connect(vault_name,tenant_id,client_id,cert_base64_thumbprint,cert_private_key_pem)
+      cert_connect(vault_name, tenant_id, client_id, cert_base64_thumbprint, cert_private_key_pem)
     rescue
       e in ArgumentError -> {:error, e}
     end
-
   end
 
   @spec cert_connect() :: Client.t() | {:error, any}

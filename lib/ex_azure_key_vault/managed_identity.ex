@@ -37,7 +37,7 @@ defmodule ExAzureKeyVault.ManagedIdentityAuth do
   @spec new() :: ManagedIdentityAuth.t()
   def new() do
     endpoint = System.get_env("IDENTITY_ENDPOINT")
-    header   = System.get_env("IDENTITY_HEADER")
+    header = System.get_env("IDENTITY_HEADER")
     ManagedIdentityAuth.new(endpoint, header)
   end
 
@@ -57,7 +57,7 @@ defmodule ExAzureKeyVault.ManagedIdentityAuth do
     header = params.header
     apiVersion = "2019-08-01"
     resource = "https://vault.azure.net"
-    headers = [ "X-Identity-Header": header ]
+    headers = ["X-Identity-Header": header]
     url = "#{endpoint}?api-version=#{apiVersion}&resource=#{resource}"
     options = HTTPUtils.options_ssl()
 
@@ -82,5 +82,4 @@ defmodule ExAzureKeyVault.ManagedIdentityAuth do
         {:error, "Something went wrong"}
     end
   end
-
 end
