@@ -10,7 +10,7 @@ defmodule ExAzureKeyVault.MixProject do
       name: "ex_azure_key_vault",
       source_url: @github_url,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.11",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       description: description(),
