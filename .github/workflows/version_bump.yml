@@ -10,6 +10,12 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    strategy:
+      matrix:
+        otp: ['24']
+        elixir: ['1.12.3']
+
     env:
       MIX_ENV: build
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -17,10 +23,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup elixir
-      uses: erlef/setup-elixir@v1
+      uses: erlef/setup-beam@v1
       with:
-        elixir-version: 1.9.4
-        otp-version: 22.2
+        otp-version: ${{matrix.otp}}
+        elixir-version: ${{matrix.elixir}}
     - name: Install dependencies
       run: mix deps.get
     - name: Run version bump

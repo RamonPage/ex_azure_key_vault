@@ -107,6 +107,19 @@ defmodule ExAzureKeyVault.ClientTest do
   describe "connect() when application config is defined" do
     setup [:setup_application_config]
 
+    test "does not connect with connection refused", context do
+      with_mock HTTPoison,
+        post: fn _url, _body, _header, _options -> response_error_econnrefused() end do
+        result = ExAzureKeyVault.Client.connect()
+
+        assert_called(
+          HTTPoison.post(context[:url], context[:body], context[:headers], context[:options])
+        )
+
+        assert result == {:error, :econnrefused}
+      end
+    end
+
     test "connects to key vault without params", context do
       with_mock HTTPoison,
         post: fn _url, _body, _header, _options -> response_200_token(context) end do
@@ -136,6 +149,24 @@ defmodule ExAzureKeyVault.ClientTest do
 
   describe "cert_connect() when application config is defined" do
     setup [:setup_application_config]
+
+    test "does not connect with connection refused", context do
+      with_mock HTTPoison,
+        post: fn _url, _body, _header, _options -> response_error_econnrefused() end do
+        result = ExAzureKeyVault.Client.cert_connect()
+
+        assert_called(
+          HTTPoison.post(
+            context[:certUrl],
+            context[:certBody],
+            context[:headers],
+            context[:options]
+          )
+        )
+
+        assert result == {:error, :econnrefused}
+      end
+    end
 
     test "connects to key vault without params", context do
       with_mock HTTPoison,
