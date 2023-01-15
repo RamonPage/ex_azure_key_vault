@@ -1,9 +1,8 @@
 # Latest release
 
-## v2.0.1
+## v2.1.1
 
-Updating dependencies.
-
-* `httpoison` to `~> 1.8.0`
-* `jason` to `~> 1.2.0`
-* `joken` to `~> 2.3.0`
+- Minimum required Elixir version is now `~> 1.11`.
+- Updating dependencies:
+  * `jason` to `~> 1.4.0`
+  * `joken` to `~> 2.5.0`
