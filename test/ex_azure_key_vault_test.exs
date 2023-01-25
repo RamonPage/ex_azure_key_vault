@@ -31,13 +31,13 @@ defmodule ExAzureKeyVault.ClientTest do
         ExAzureKeyVault.Client.new(
           "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
           @vault_name,
-          "2016-10-01"
+          "7.3"
         ),
       client_with_custom_params:
         ExAzureKeyVault.Client.new(
           "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
           "another-vault",
-          "2016-10-01"
+          "7.3"
         ),
       url: "https://login.windows.net/#{@tenant_id}/oauth2/token",
       body:
@@ -62,7 +62,7 @@ defmodule ExAzureKeyVault.ClientTest do
       options: [ssl: [versions: [:"tlsv1.2"]]],
       expected_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
       next_link:
-        "https://#{@vault_name}.vault.azure.net:443/secrets?api-version=2016-10-01&$skiptoken=eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6...&maxresults=2",
+        "https://#{@vault_name}.vault.azure.net:443/secrets?api-version=7.3&$skiptoken=eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6...&maxresults=2",
       secrets_list: %{
         "nextLink" => nil,
         "value" => [

@@ -36,13 +36,13 @@ defmodule ExAzureKeyVault.Url do
 
   Passing secret version.
 
-      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_url("7ea98ee699b1...", "2016-10-01")
-      "https://my-vault.vault.azure.net/secrets/my-secret/7ea98ee699b1...?api-version=2016-10-01"
+      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_url("7ea98ee699b1...", "7.3")
+      "https://my-vault.vault.azure.net/secrets/my-secret/7ea98ee699b1...?api-version=7.3"
 
   Ignoring secret version.
 
-      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_url(nil, "2016-10-01")
-      "https://my-vault.vault.azure.net/secrets/my-secret?api-version=2016-10-01"
+      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_url(nil, "7.3")
+      "https://my-vault.vault.azure.net/secrets/my-secret?api-version=7.3"
 
   """
   @spec get_url(Url.t(), String.t() | nil, String.t()) :: String.t()
@@ -64,13 +64,13 @@ defmodule ExAzureKeyVault.Url do
 
   Passing a maximum number of 10 results in a page.
 
-      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_secrets_url(10, "2016-10-01")
-      "https://my-vault.vault.azure.net/secrets?api-version=2016-10-01&maxresults=10"
+      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_secrets_url(10, "7.3")
+      "https://my-vault.vault.azure.net/secrets?api-version=7.3&maxresults=10"
 
   Ignoring maximum number of results.
 
-      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_secrets_url(nil, "2016-10-01")
-      "https://my-vault.vault.azure.net/secrets?api-version=2016-10-01"
+      iex(1)> ExAzureKeyVault.Url.new("my-secret", "my-vault") |> ExAzureKeyVault.Url.get_secrets_url(nil, "7.3")
+      "https://my-vault.vault.azure.net/secrets?api-version=7.3"
 
   """
   @spec get_secrets_url(Url.t(), integer | nil, String.t()) :: String.t()

@@ -3,6 +3,6 @@ defmodule ExAzureKeyVault.APIVersionTest do
   doctest ExAzureKeyVault.APIVersion
 
   test "shows the api version" do
-    assert ExAzureKeyVault.APIVersion.version() == "2016-10-01"
+    assert ExAzureKeyVault.APIVersion.version() == "7.3"
   end
 end

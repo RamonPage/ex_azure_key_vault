@@ -31,7 +31,7 @@ defmodule ExAzureKeyVault.Client do
 
       iex(1)> ExAzureKeyVault.Client.new("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "my-vault")
       %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
+        api_version: "7.3",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
         vault_name: "my-vault"
       }
@@ -76,7 +76,7 @@ defmodule ExAzureKeyVault.Client do
 
       iex(1)> ExAzureKeyVault.Client.connect()
       %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
+        api_version: "7.3",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
         vault_name: "my-vault"
       }
@@ -85,7 +85,7 @@ defmodule ExAzureKeyVault.Client do
 
       iex(1)> ExAzureKeyVault.Client.connect("custom-vault", "14e7a376-9abf...", "14e79d90-9abf...", "14e7a11e-9abf...")
       %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
+        api_version: "7.3",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
         vault_name: "custom-vault"
       }
@@ -136,7 +136,7 @@ defmodule ExAzureKeyVault.Client do
 
       iex(1)> ExAzureKeyVault.Client.cert_connect()
       %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
+        api_version: "7.3",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
         vault_name: "my-vault"
       }
@@ -145,7 +145,7 @@ defmodule ExAzureKeyVault.Client do
 
       iex(1)> ExAzureKeyVault.Client.cert_connect("custom-vault", "14e7a376-9abf...", "14e79d90-9abf...", "Dss7v2YI3GgCGfl...", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF...")
       %ExAzureKeyVault.Client{
-        api_version: "2016-10-01",
+        api_version: "7.3",
         bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
         vault_name: "custom-vault"
       }
@@ -238,7 +238,7 @@ defmodule ExAzureKeyVault.Client do
       iex(1)> ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secrets(2)
       {:ok,
         %{
-          "nextLink" => "https://my-vault.vault.azure.net:443/secrets?api-version=2016-10-01&$skiptoken=eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6...&maxresults=2",
+          "nextLink" => "https://my-vault.vault.azure.net:443/secrets?api-version=7.3&$skiptoken=eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6...&maxresults=2",
           "value" => [
             %{
               "attributes" => %{
