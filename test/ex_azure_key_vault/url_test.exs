@@ -8,24 +8,24 @@ defmodule ExAzureKeyVault.UrlTest do
 
   describe "when passing secret version" do
     test "gets secret url", context do
-      url = context[:url] |> ExAzureKeyVault.Url.get_url("7ea98ee699b1", "2016-10-01")
+      url = context[:url] |> ExAzureKeyVault.Url.get_url("7ea98ee699b1", "7.3")
 
       assert url ==
-               "https://my-vault.vault.azure.net/secrets/my-secret/7ea98ee699b1?api-version=2016-10-01"
+               "https://my-vault.vault.azure.net/secrets/my-secret/7ea98ee699b1?api-version=7.3"
     end
   end
 
   describe "when secret version is nil" do
     test "gets secret url", context do
-      url = context[:url] |> ExAzureKeyVault.Url.get_url(nil, "2016-10-01")
-      assert url == "https://my-vault.vault.azure.net/secrets/my-secret?api-version=2016-10-01"
+      url = context[:url] |> ExAzureKeyVault.Url.get_url(nil, "7.3")
+      assert url == "https://my-vault.vault.azure.net/secrets/my-secret?api-version=7.3"
     end
   end
 
   describe "when secret version is not passed" do
     test "gets secret url", context do
-      url = context[:url] |> ExAzureKeyVault.Url.get_url("2016-10-01")
-      assert url == "https://my-vault.vault.azure.net/secrets/my-secret?api-version=2016-10-01"
+      url = context[:url] |> ExAzureKeyVault.Url.get_url("7.3")
+      assert url == "https://my-vault.vault.azure.net/secrets/my-secret?api-version=7.3"
     end
   end
 end

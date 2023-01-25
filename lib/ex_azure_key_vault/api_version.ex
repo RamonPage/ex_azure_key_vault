@@ -9,11 +9,11 @@ defmodule ExAzureKeyVault.APIVersion do
   ## Examples
 
       iex(1)> ExAzureKeyVault.APIVersion.version()
-      "2016-10-01"
+      "7.3"
 
   """
   @spec version :: String.t()
   def version do
-    "2016-10-01"
+    "7.3"
   end
 end
