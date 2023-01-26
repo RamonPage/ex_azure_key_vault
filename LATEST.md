@@ -1,8 +1,7 @@
 # Latest release
 
-## v2.1.1
+## v2.2.0
 
-- Minimum required Elixir version is now `~> 1.11`.
+- Update Azure Key Vault API version to `7.3`.
 - Updating dependencies:
-  * `jason` to `~> 1.4.0`
-  * `joken` to `~> 2.5.0`
+  * `httpoison` to `~> 2.0.0`
