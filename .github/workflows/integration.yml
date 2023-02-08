@@ -1,0 +1,41 @@
+name: E2E integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    strategy:
+      matrix:
+        otp: ['24']
+        elixir: ['1.12.3']
+
+    env:
+		  MIX_ENV: build
+			AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+			AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+			AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+			AZURE_VAULT_NAME: ${{ secrets.AZURE_VAULT_NAME }}
+			AZURE_CERT_BASE64_THUMBPRINT: ${{ secrets.AZURE_CERT_BASE64_THUMBPRINT }}
+			AZURE_CERT_PRIVATE_KEY_PEM: ${{ secrets.AZURE_CERT_PRIVATE_KEY_PEM }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: ${{matrix.otp}}
+        elixir-version: ${{matrix.elixir}}
+    - name: Install dependencies
+      run: mix deps.get
+    - name: Compile without warnings
+      run: mix compile --warnings-as-errors
+    - name: Run integration
+      run: mix integration
