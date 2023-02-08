@@ -22,14 +22,19 @@ defmodule Mix.Tasks.Integration do
     Mix.shell().info("\n#### Using client secret ####\n")
 
     Mix.shell().info("Creating a secret...")
-    status = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.create_secret(connect_secret_name, connect_secret_value)
+
+    status =
+      ExAzureKeyVault.Client.connect()
+      |> ExAzureKeyVault.Client.create_secret(connect_secret_name, connect_secret_value)
 
     if :ok = status do
       Mix.shell().info("✅ #{status}\n")
     end
 
     Mix.shell().info("Getting a secret...")
-    {status, result} = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secret(connect_secret_name)
+
+    {status, result} =
+      ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.get_secret(connect_secret_name)
 
     if :ok = status do
       Mix.shell().info("✅ #{result}\n")
@@ -45,7 +50,9 @@ defmodule Mix.Tasks.Integration do
     Mix.shell().info("Getting secrets on next link...")
     client = ExAzureKeyVault.Client.connect()
     {_, result} = client |> ExAzureKeyVault.Client.get_secrets(25)
-    {next_status, next_result} = client |> ExAzureKeyVault.Client.get_secrets_next(result["nextLink"])
+
+    {next_status, next_result} =
+      client |> ExAzureKeyVault.Client.get_secrets_next(result["nextLink"])
 
     if :ok = next_status do
       Mix.shell().info("✅ #{length(result["value"])} secrets found (page 1)")
@@ -53,7 +60,10 @@ defmodule Mix.Tasks.Integration do
     end
 
     Mix.shell().info("Deleting a secret...")
-    status = ExAzureKeyVault.Client.connect() |> ExAzureKeyVault.Client.delete_secret(connect_secret_name)
+
+    status =
+      ExAzureKeyVault.Client.connect()
+      |> ExAzureKeyVault.Client.delete_secret(connect_secret_name)
 
     if :ok = status do
       Mix.shell().info("✅ #{status}\n")
@@ -68,21 +78,29 @@ defmodule Mix.Tasks.Integration do
     Mix.shell().info("\n#### Using client assertion ####\n")
 
     Mix.shell().info("Creating a secret...")
-    status = ExAzureKeyVault.Client.cert_connect() |> ExAzureKeyVault.Client.create_secret(cert_connect_secret_name, cert_connect_secret_value)
+
+    status =
+      ExAzureKeyVault.Client.cert_connect()
+      |> ExAzureKeyVault.Client.create_secret(cert_connect_secret_name, cert_connect_secret_value)
 
     if :ok = status do
       Mix.shell().info("✅ #{status}\n")
     end
 
     Mix.shell().info("Getting a secret...")
-    {status, result} = ExAzureKeyVault.Client.cert_connect() |> ExAzureKeyVault.Client.get_secret(cert_connect_secret_name)
+
+    {status, result} =
+      ExAzureKeyVault.Client.cert_connect()
+      |> ExAzureKeyVault.Client.get_secret(cert_connect_secret_name)
 
     if :ok = status do
       Mix.shell().info("✅ #{result}\n")
     end
 
     Mix.shell().info("Getting secrets...")
-    {status, result} = ExAzureKeyVault.Client.cert_connect() |> ExAzureKeyVault.Client.get_secrets()
+
+    {status, result} =
+      ExAzureKeyVault.Client.cert_connect() |> ExAzureKeyVault.Client.get_secrets()
 
     if :ok = status do
       Mix.shell().info("✅ #{length(result["value"])} secrets found\n")
@@ -91,7 +109,9 @@ defmodule Mix.Tasks.Integration do
     Mix.shell().info("Getting secrets on next link...")
     client = ExAzureKeyVault.Client.cert_connect()
     {_, result} = client |> ExAzureKeyVault.Client.get_secrets(25)
-    {next_status, next_result} = client |> ExAzureKeyVault.Client.get_secrets_next(result["nextLink"])
+
+    {next_status, next_result} =
+      client |> ExAzureKeyVault.Client.get_secrets_next(result["nextLink"])
 
     if :ok = next_status do
       Mix.shell().info("✅ #{length(result["value"])} secrets found (page 1)")
@@ -99,7 +119,10 @@ defmodule Mix.Tasks.Integration do
     end
 
     Mix.shell().info("Deleting a secret...")
-    status = ExAzureKeyVault.Client.cert_connect() |> ExAzureKeyVault.Client.delete_secret(cert_connect_secret_name)
+
+    status =
+      ExAzureKeyVault.Client.cert_connect()
+      |> ExAzureKeyVault.Client.delete_secret(cert_connect_secret_name)
 
     if :ok = status do
       Mix.shell().info("✅ #{status}\n")
