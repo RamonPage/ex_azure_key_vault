@@ -18,13 +18,13 @@ jobs:
         elixir: ['1.12.3']
 
     env:
-		  MIX_ENV: build
-			AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-			AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-			AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-			AZURE_VAULT_NAME: ${{ secrets.AZURE_VAULT_NAME }}
-			AZURE_CERT_BASE64_THUMBPRINT: ${{ secrets.AZURE_CERT_BASE64_THUMBPRINT }}
-			AZURE_CERT_PRIVATE_KEY_PEM: ${{ secrets.AZURE_CERT_PRIVATE_KEY_PEM }}
+      MIX_ENV: build
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_VAULT_NAME: ${{ secrets.AZURE_VAULT_NAME }}
+      AZURE_CERT_BASE64_THUMBPRINT: ${{ secrets.AZURE_CERT_BASE64_THUMBPRINT }}
+      AZURE_CERT_PRIVATE_KEY_PEM: ${{ secrets.AZURE_CERT_PRIVATE_KEY_PEM }}
 
     steps:
     - uses: actions/checkout@v2
