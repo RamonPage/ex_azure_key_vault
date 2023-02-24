@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.2.1
+
+- Updating dependencies:
+  * `joken` to `~> 2.6.0`
+
+
 ## v2.2.0
 
 - Updating Azure Key Vault API version to `7.3`.
