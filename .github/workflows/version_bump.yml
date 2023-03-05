@@ -21,7 +21,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup elixir
       uses: erlef/setup-beam@v1
       with:
@@ -32,7 +32,7 @@ jobs:
     - name: Run version bump
       run: mix version
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v3
+      uses: peter-evans/create-pull-request@v4
       with:
         title: "[action] Bump version"
         commit-message: "[action] Bump version"
