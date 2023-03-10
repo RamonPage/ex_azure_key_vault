@@ -60,7 +60,7 @@ defmodule ExAzureKeyVault.MixProject do
 
   defp deps do
     [
-      {:httpoison, "~> 2.0.0"},
+      {:httpoison, "~> 2.1.0"},
       {:joken, "~> 2.6.0"},
       {:jason, "~> 1.4.0"},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
