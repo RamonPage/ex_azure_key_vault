@@ -89,4 +89,45 @@ iex(1)> ExAzureKeyVault.Client.cert_connect() |> ExAzureKeyVault.Client.get_secr
 ```
 ***
 
+## Connecting with MSI
+
+For additional security, `ex_azure_key_vault` accepts client assertion instead of a client secret. To do so, first you need to upload a certificate to your Azure App Registration. Then pass the certificate SHA-1 thumbprint in base64 format and the private key in PEM format to `ex_azure_key_vault`.
+
+```bash
+$ export AZURE_VAULT_NAME="my-vault"
+```
+
+```elixir
+# Config.exs
+config :ex_azure_key_vault,
+  azure_vault_name: {:system, "AZURE_VAULT_NAME"}
+```
+
+### Getting a secret
+```elixir
+iex(1)> ExAzureKeyVault.Client.msi_connect() |> ExAzureKeyVault.Client.get_secret("my-secret")
+{:ok, "my-value"}
+```
+***
+
+## Connecting with (multiple)
+
+For additional security, `ex_azure_key_vault` accepts client assertion instead of a client secret. To do so, first you need to upload a certificate to your Azure App Registration. Then pass the certificate SHA-1 thumbprint in base64 format and the private key in PEM format to `ex_azure_key_vault`.
+
+```bash
+$ export AZURE_VAULT_NAME="my-vault"
+```
+
+```elixir
+# Config.exs
+config :ex_azure_key_vault,
+  azure_vault_name: {:system, "AZURE_VAULT_NAME"}
+```
+
+### Getting a secret
+```elixir
+iex(1)> ExAzureKeyVault.Client.smart_connect() |> ExAzureKeyVault.Client.get_secret("my-secret")
+{:ok, "my-value"}
+```
+***
 Thanks to [stuartbarr](https://github.com/stuartbarr/azure-key-vault) for the inspiration.
