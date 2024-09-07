@@ -5,6 +5,7 @@ defmodule ExAzureKeyVault.Client do
   alias __MODULE__
   alias ExAzureKeyVault.APIVersion
   alias ExAzureKeyVault.Auth
+  alias ExAzureKeyVault.ManagedIdentityAuth
   alias ExAzureKeyVault.ClientAssertionAuth
   alias ExAzureKeyVault.HTTPUtils
   alias ExAzureKeyVault.Url
@@ -56,6 +57,108 @@ defmodule ExAzureKeyVault.Client do
   end
 
   @doc """
+  Connects to Azure Key Vault (Using MSI - Managed Service Identity).
+
+  ## Examples
+
+  When defining environment variables and/or adding to configuration.
+
+      $ export AZURE_VAULT_NAME="my-vault"
+
+      # Config.exs
+      config :ex_azure_key_vault,
+        azure_vault_name: {:system, "AZURE_VAULT_NAME"}
+
+      iex(1)> ExAzureKeyVault.Client.msi_connect()
+      %ExAzureKeyVault.Client{
+        api_version: "2016-10-01",
+        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        vault_name: "my-vault"
+      }
+
+  Passing custom parameters.
+
+      iex(1)> ExAzureKeyVault.Client.msi_connect("custom-vault")
+      %ExAzureKeyVault.Client{
+        api_version: "2016-10-01",
+        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        vault_name: "custom-vault"
+      }
+
+  """
+  @spec smart_connect() :: Client.t() | {:error, any}
+  @spec smart_connect(String.t() | nil) :: Client.t() | {:error, any}
+  def smart_connect(vault_name \\ nil) do
+    with {:error, error1} <- msi_connect!(vault_name),
+         {:error, error2} <- connect!(vault_name),
+         {:error, error3} <- cert_connect!(vault_name) do
+      {:error, "#{error1},#{error2},#{error3}"}
+    else
+      client -> client
+    end
+  end
+
+  @doc """
+  Connects to Azure Key Vault (Using MSI - Managed Service Identity).
+
+  ## Examples
+
+  When defining environment variables and/or adding to configuration.
+
+      $ export AZURE_VAULT_NAME="my-vault"
+
+      # Config.exs
+      config :ex_azure_key_vault,
+        azure_vault_name: {:system, "AZURE_VAULT_NAME"}
+
+      iex(1)> ExAzureKeyVault.Client.msi_connect()
+      %ExAzureKeyVault.Client{
+        api_version: "2016-10-01",
+        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        vault_name: "my-vault"
+      }
+
+  Passing custom parameters.
+
+      iex(1)> ExAzureKeyVault.Client.msi_connect("custom-vault")
+      %ExAzureKeyVault.Client{
+        api_version: "2016-10-01",
+        bearer_token: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        vault_name: "custom-vault"
+      }
+
+  """
+  @spec msi_connect!() :: Client.t() | {:error, any}
+  @spec msi_connect!(String.t() | nil) ::
+          Client.t() | {:error, any}
+  def msi_connect!(vault_name \\ nil) do
+    try do
+      msi_connect(vault_name)
+    rescue
+      e in ArgumentError -> {:error, e}
+    end
+  end
+
+  @spec msi_connect() :: Client.t() | {:error, any}
+  @spec msi_connect(String.t() | nil) ::
+          Client.t() | {:error, any}
+  def msi_connect(vault_name \\ nil) do
+    vault_name = get_env(:azure_vault_name, vault_name)
+    endpoint = System.get_env("IDENTITY_ENDPOINT")
+    header = System.get_env("IDENTITY_HEADER")
+    if is_empty(endpoint), do: raise(ArgumentError, message: "IDENTITY_ENDPOINT not present")
+    if is_empty(header), do: raise(ArgumentError, message: "IDENTITY_HEADER not present")
+
+    with %ManagedIdentityAuth{} = auth <- ManagedIdentityAuth.new(endpoint, header),
+         {:ok, bearer_token} <- auth |> ManagedIdentityAuth.get_bearer_token(),
+         %Client{} = client <- bearer_token |> Client.new(vault_name, APIVersion.version()) do
+      client
+    else
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
   Connects to Azure Key Vault.
 
   ## Examples
@@ -91,6 +194,17 @@ defmodule ExAzureKeyVault.Client do
       }
 
   """
+  @spec connect!() :: Client.t() | {:error, any}
+  @spec connect!(String.t() | nil, String.t() | nil, String.t() | nil, String.t() | nil) ::
+          Client.t() | {:error, any}
+  def connect!(vault_name \\ nil, tenant_id \\ nil, client_id \\ nil, client_secret \\ nil) do
+    try do
+      connect(vault_name, tenant_id, client_id, client_secret)
+    rescue
+      e in ArgumentError -> {:error, e}
+    end
+  end
+
   @spec connect() :: Client.t() | {:error, any}
   @spec connect(String.t() | nil, String.t() | nil, String.t() | nil, String.t() | nil) ::
           Client.t() | {:error, any}
@@ -151,6 +265,28 @@ defmodule ExAzureKeyVault.Client do
       }
 
   """
+  @spec cert_connect!() :: Client.t() | {:error, any}
+  @spec cert_connect!(
+          String.t() | nil,
+          String.t() | nil,
+          String.t() | nil,
+          String.t() | nil,
+          String.t() | nil
+        ) :: Client.t() | {:error, any}
+  def cert_connect!(
+        vault_name \\ nil,
+        tenant_id \\ nil,
+        client_id \\ nil,
+        cert_base64_thumbprint \\ nil,
+        cert_private_key_pem \\ nil
+      ) do
+    try do
+      cert_connect(vault_name, tenant_id, client_id, cert_base64_thumbprint, cert_private_key_pem)
+    rescue
+      e in ArgumentError -> {:error, e}
+    end
+  end
+
   @spec cert_connect() :: Client.t() | {:error, any}
   @spec cert_connect(
           String.t() | nil,
